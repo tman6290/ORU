@@ -33,3 +33,9 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# ORU
+reference/*
+!reference/README.md
+CLAUDE.local.md
+.claude/settings.local.json
