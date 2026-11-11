@@ -4,9 +4,9 @@ Claude Code: read this file at the start of each session and update it at the en
 
 ## Current state
 
-- Phase in progress: 1 (not started)
-- App runs on Tofa's machine: unknown
-- Last session: none
+- Phase in progress: 1 (code done, waiting on Tofa's `pnpm dev` check)
+- App runs on Tofa's machine: builds; launch not yet confirmed
+- Last session: 2026-11-11, Phase 1
 
 ## Phases
 
@@ -25,6 +25,26 @@ Claude Code: read this file at the start of each session and update it at the en
 
 Add one entry per session, newest first.
 
+### 2026-11-11, Phase 1
+Done:
+- pnpm 10.8.1 installed globally with npm (corepack enable needed admin). `pnpm install`, `typecheck` and `build` pass on Windows with no fixes needed.
+- Removed analytics (module, call sites, config block, Settings/onboarding toggle). PRIVACY.md rewritten.
+- Removed auto-update (electron-updater, update banner and IPC channel, `publish` set to null, release scripts). electron-log removed too: only the updater used it.
+- Rebranded: productName ORU, appId `tech.wolban.oru`, package name `oru`, titles, tray, onboarding and permission copy, assistant name ORU and wake word `oru`.
+- Windows hotkeys (D11): interrupt Ctrl+Alt+Backspace, summon Ctrl+Alt+Space (fallback Ctrl+Alt+O), push-to-talk unchanged. UI hints read from `renderer/src/lib/hotkeys.ts`.
+- Trimmed site/, RELEASING.md, screenshots/, assets/download/, release/pages/pr-review workflows, release-note and PR-review scripts. Kept CONTRIBUTING.md (AGENTS.md links to it for themes and skills) and ci.yml.
+- New README.
+Not done:
+- `pnpm dev` launch and hotkey checks on Tofa's machine.
+Decisions: D11 (Windows hotkeys), D12 (package identity).
+Manual tests for Tofa:
+1. `pnpm dev`: the window is titled ORU; onboarding finishes with no analytics step; Settings → Privacy shows "ORU sends no usage data".
+2. Push-to-talk: switch Voice input to push-to-talk, press Ctrl+Shift+Space. It should start listening.
+3. While a command runs, press Ctrl+Alt+Backspace. The command stops and the Start menu does not open.
+4. Press Ctrl+Alt+Space from another app. ORU shows and hides, and no window menu appears.
+5. Tray icon tooltip and menu read "ORU", "Show ORU", "Quit ORU".
+Next step: Tofa reports the `pnpm dev` result, then Phase 2 (`prompts/02-shell.md`).
+
 ```
 ### YYYY-MM-DD, Phase N
 Done:
@@ -36,11 +56,14 @@ Next step:
 
 ## Open questions for Tofa
 
-- (none yet)
+- The Language model list still shows OpenDex's "OpenDex" subscription provider (marked coming soon). Remove or hide it in Phase 6?
+- The default wake word is now `oru`. The Vosk English model may not know that word, so wake detection could miss it. Check in Phase 5.
 
 ## Known issues
 
-- (none yet)
+- AGENTS.md is stale in two places: the Summon hotkey bullet (Phase 7 section) still says Alt+Space with a Control+Shift+Space fallback, and there is no longer an update banner or analytics. D11 is the current behaviour.
+- `pnpm install` skipped build scripts for electron-winstaller, esbuild, onnxruntime-node and protobufjs (pnpm 10 default). Build and typecheck pass anyway; revisit with `pnpm approve-builds` if packaging or local Whisper fails.
+- Saved configs from an earlier run keep `hotkeys.summon = Alt+Space`. On Windows the registrar skips it and uses Ctrl+Alt+Space.
 
 ## Measurements
 
@@ -48,7 +71,7 @@ Record numbers here as phases produce them.
 
 | Metric | Target | Measured |
 | --- | --- | --- |
-| VRAM total (nvidia-smi) | n/a | |
+| VRAM total (nvidia-smi) | n/a | 8151 MiB (RTX 5070 Laptop) |
 | Idle GPU use, ORU view | under 15% | |
 | Frame rate, ORU focused | 60 fps | |
 | Wake to listening | under 0.5 s | |
