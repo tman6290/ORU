@@ -110,10 +110,6 @@ export interface OpenDexConfig {
     /** Animate cursor moves (watchable) vs teleport instantly (fastest). */
     animateCursor: boolean;
   };
-  analytics: {
-    /** Send anonymous usage events (no voice, prompts, keys, URLs, or paths). */
-    enabled: boolean;
-  };
   onboarding: { completed: boolean };
 }
 
@@ -179,8 +175,6 @@ export const DEFAULT_CONFIG: OpenDexConfig = {
     permissions: { open: "ask", computer: "ask" },
   },
   computer: { animateCursor: true },
-  // Anonymous usage analytics, on by default (opt-out in onboarding/Settings).
-  analytics: { enabled: true },
   onboarding: { completed: false },
 };
 

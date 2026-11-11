@@ -52,7 +52,6 @@ import {
 } from "./config/store";
 import type { DeepPartial, OpenDexConfig, SecretName, SttProvider } from "./config/schema";
 import { initAutoUpdater } from "./updater";
-import { initAnalytics, track } from "./analytics";
 
 // Load a dev .env first; initConfig() then layers the user's saved config on
 // top (config values win; .env remains a fallback for unset secrets).
@@ -531,7 +530,6 @@ function registerIpc() {
     const sender = event.sender;
     const config = getConfig();
     const briefing = mode === "briefing";
-    track("command_run", { mode: briefing ? "briefing" : "command" });
     const system = buildSystemPrompt({
       config,
       briefing,
@@ -559,8 +557,6 @@ function registerIpc() {
           }
         },
         onToolCall: (call) => {
-          // Tool name only — never the input args.
-          track("tool_used", { tool_name: call.toolName });
           if (!ac.signal.aborted && !sender.isDestroyed()) {
             sender.send(IPC.chatTool(requestId), call);
           }
@@ -620,7 +616,6 @@ function registerIpc() {
       }
       const briefing = Boolean(opts?.briefing);
       const modelMeta = getRealtimeModelMeta(config.realtime.model);
-      track("realtime_session", { model: config.realtime.model });
 
       const sender = event.sender;
       const previousSession = realtimeSessionBySender.get(sender.id);
@@ -649,9 +644,6 @@ function registerIpc() {
         tools,
         transcribesInput: modelMeta?.transcribes ?? true,
         notify: (notice) => {
-          if (notice.type === "tool-call") {
-            track("tool_used", { tool_name: notice.call.toolName });
-          }
           if (!sender.isDestroyed()) {
             sender.send(IPC.realtimeEvent(sessionId), notice);
           }
@@ -702,7 +694,6 @@ function registerIpc() {
   ipcMain.handle(IPC.configReset, () => {
     const result = resetConfig();
     broadcastConfig();
-    track("config_reset");
     return result;
   });
 
@@ -711,18 +702,6 @@ function registerIpc() {
   ipcMain.handle(IPC.onboardingComplete, () => {
     const result = completeOnboarding();
     broadcastConfig();
-    // Coarse, anonymized snapshot of which options the user chose — feature
-    // popularity only, no content or identifiers.
-    const c = result.config;
-    track("onboarding_completed", {
-      theme: c.appearance.theme,
-      voice_mode: c.voice.mode,
-      ...(c.voice.mode === "realtime" ? { realtime_model: c.realtime.model } : {}),
-      wake_mode: c.voiceInput.wakeMode,
-      stt_provider: c.voiceInput.sttProvider,
-      tts_engine: c.tts.engine,
-      greeting_mode: c.greeting.mode,
-    });
     return result;
   });
 
@@ -872,9 +851,6 @@ function createTray() {
 
 app.whenReady().then(() => {
   initConfig();
-  initAnalytics();
-  track("app_started");
-  if (!getConfig().onboarding.completed) track("onboarding_started");
   registerIpc();
   createWindow();
   createOverlayWindow();
@@ -917,8 +893,6 @@ app.whenReady().then(() => {
 app.on("before-quit", () => {
   // Let the main window actually close instead of hiding (see its close handler).
   isQuitting = true;
-  // Best-effort — the process may exit before the request lands.
-  track("app_quit");
 });
 
 app.on("will-quit", () => {

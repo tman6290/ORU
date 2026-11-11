@@ -508,36 +508,12 @@ function GreetingSection({ data, setConfig }: SectionProps) {
   );
 }
 
-function PrivacySection({ data, setConfig }: SectionProps) {
-  const { config } = data;
+function PrivacySection({ data }: SectionProps) {
   return (
     <>
-      <ToggleRow
-        title="Anonymous usage data"
-        description={
-          <>
-            Helps improve OpenDex. Never sends voice, transcripts, prompts, API
-            keys, opened URLs, or file paths.{" "}
-            <a
-              href="https://github.com/wassgha/opendex/blob/main/PRIVACY.md"
-              target="_blank"
-              rel="noreferrer"
-              className="underline hover:text-foreground"
-            >
-              Learn more
-            </a>
-          </>
-        }
-      >
-        <SegmentedControl
-          value={config.analytics.enabled ? "on" : "off"}
-          options={[
-            { value: "on", label: "On" },
-            { value: "off", label: "Off" },
-          ]}
-          onChange={(v) => setConfig({ analytics: { enabled: v === "on" } })}
-        />
-      </ToggleRow>
+      <div className="text-sm text-muted-foreground">
+        ORU sends no usage data. Nothing is tracked or reported.
+      </div>
       <div className="text-xs text-muted-foreground">
         {data.encryptionAvailable
           ? "API keys are encrypted with your OS keychain."

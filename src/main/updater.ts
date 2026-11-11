@@ -1,7 +1,6 @@
 import { app, BrowserWindow, dialog } from "electron";
 import log from "electron-log";
 import electronUpdater from "electron-updater";
-import { track } from "./analytics";
 import { IPC, type UpdateStatusPayload } from "./ipc/channels";
 
 // electron-updater ships CommonJS; pull autoUpdater off the default export so
@@ -54,7 +53,6 @@ export function initAutoUpdater(): void {
 
   autoUpdater.on("update-downloaded", (info) => {
     log.info("[updater] update downloaded", info.version);
-    track("update_downloaded", { update_version: info.version });
     broadcast({ state: "downloaded", version: info.version });
     void dialog
       .showMessageBox({
