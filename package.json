@@ -21,10 +21,6 @@
     "smoke:chat": "tsx scripts/smoke-chat.ts",
     "smoke:realtime": "tsx scripts/smoke-realtime.ts",
     "dist": "electron-vite build && electron-builder",
-    "release": "electron-vite build && electron-builder --publish always",
-    "cut:patch": "pnpm version patch -m \"Release v%s\" && git push --follow-tags",
-    "cut:minor": "pnpm version minor -m \"Release v%s\" && git push --follow-tags",
-    "cut:major": "pnpm version major -m \"Release v%s\" && git push --follow-tags",
     "notes:preview": "tsx scripts/generate-release-notes.ts HEAD \"$(git tag --sort=-v:refname | head -1)\"",
     "review:pr": "tsx scripts/review-pr.ts origin/main HEAD"
   },
@@ -40,8 +36,6 @@
     "@picovoice/web-voice-processor": "^4.0.10",
     "ai": "^6.0.193",
     "dotenv": "^17.4.2",
-    "electron-log": "^5.4.3",
-    "electron-updater": "^6.6.2",
     "vosk-browser": "^0.0.8",
     "zod": "^4.4.3"
   },
@@ -78,13 +72,7 @@
       "output": "dist",
       "buildResources": "build"
     },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "wassgha",
-        "repo": "opendex"
-      }
-    ],
+    "publish": null,
     "files": [
       "out/**/*",
       "package.json"

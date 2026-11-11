@@ -10,7 +10,6 @@ import {
   type SessionState,
   type ToolCallEvent,
   type ToolResultEvent,
-  type UpdateStatusPayload,
   type ViewCommand,
   type WindowMode,
 } from "../main/ipc/channels";
@@ -294,15 +293,6 @@ const opendex = {
     const listener = (_e: IpcRendererEvent, id: string) => handler(id);
     ipcRenderer.on(IPC.permissionDismiss, listener);
     return () => ipcRenderer.removeListener(IPC.permissionDismiss, listener);
-  },
-
-  /** Subscribe to auto-update lifecycle events (download progress, errors,
-   *  ready-to-install). Returns an unsubscribe fn. */
-  onUpdateStatus(handler: (status: UpdateStatusPayload) => void): () => void {
-    const listener = (_e: IpcRendererEvent, status: UpdateStatusPayload) =>
-      handler(status);
-    ipcRenderer.on(IPC.updateStatus, listener);
-    return () => ipcRenderer.removeListener(IPC.updateStatus, listener);
   },
 
   /** Answer a permission prompt. */

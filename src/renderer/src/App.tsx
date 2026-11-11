@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from "react";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
-import { UpdateBanner } from "@/components/update-banner";
 import { getDexTheme } from "@/components/themes/registry";
 import { useConfig } from "@/lib/use-config";
 import { useDex, type UseDexOptions } from "@/lib/dex/use-dex";
@@ -140,8 +139,6 @@ function MainExperience({ data }: { data: PublicConfig }) {
           </div>
         </div>
       )}
-
-      <UpdateBanner />
 
       {dex.audioBlocked && (
         <button

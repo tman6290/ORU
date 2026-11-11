@@ -51,7 +51,6 @@ import {
   updateConfig,
 } from "./config/store";
 import type { DeepPartial, OpenDexConfig, SecretName, SttProvider } from "./config/schema";
-import { initAutoUpdater } from "./updater";
 
 // Load a dev .env first; initConfig() then layers the user's saved config on
 // top (config values win; .env remains a fallback for unset secrets).
@@ -881,7 +880,6 @@ app.whenReady().then(() => {
   registerPushToTalkHotkey();
   registerInterruptHotkey();
   registerSummonHotkey();
-  initAutoUpdater();
 
   app.on("activate", () => {
     // Dock click / re-activate: bring the existing window forward (it's hidden,
