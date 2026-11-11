@@ -16,9 +16,7 @@
     "typecheck": "tsc --noEmit",
     "smoke:chat": "tsx scripts/smoke-chat.ts",
     "smoke:realtime": "tsx scripts/smoke-realtime.ts",
-    "dist": "electron-vite build && electron-builder",
-    "notes:preview": "tsx scripts/generate-release-notes.ts HEAD \"$(git tag --sort=-v:refname | head -1)\"",
-    "review:pr": "tsx scripts/review-pr.ts origin/main HEAD"
+    "dist": "electron-vite build && electron-builder"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.86",
