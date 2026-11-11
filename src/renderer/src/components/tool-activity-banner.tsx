@@ -1,13 +1,10 @@
 import type { ToolActivity } from "@/lib/dex/use-dex";
-
-const IS_MAC =
-  typeof navigator !== "undefined" && navigator.platform.toLowerCase().includes("mac");
-const STOP_HINT = IS_MAC ? "⌘⎋" : "Ctrl+Esc";
+import { STOP_HINT } from "@/lib/hotkeys";
 
 // Always-available emergency stop, shown whenever the agent is busy. The global
-// ⌘/Ctrl+Esc hotkey does the same thing and works even when another app has
-// focus (during computer-use OpenDex isn't the focused window) — this button is
-// the visible reminder + a fallback for when OpenDex is in front.
+// stop hotkey (STOP_HINT) does the same thing and works even when another app has
+// focus (during computer-use ORU isn't the focused window) — this button is
+// the visible reminder + a fallback for when ORU is in front.
 export function StopControl({ onStop }: { onStop: () => void }) {
   return (
     // Container is click-through (pointer-events-none) so the band it spans

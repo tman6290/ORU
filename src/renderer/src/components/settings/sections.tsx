@@ -1,3 +1,4 @@
+import { PTT_HINT } from "@/lib/hotkeys";
 import { useState, type ComponentType } from "react";
 import {
   User,
@@ -190,7 +191,7 @@ function VoiceInputSection({ data, setConfig, setSecret }: SectionProps) {
         }
         value={config.voiceInput.wakeMode}
         options={[
-          { value: "manual", label: "Push to talk (click / ⌘⇧Space)" },
+          { value: "manual", label: `Push to talk (click / ${PTT_HINT})` },
           { value: "vosk", label: "Wake word (Vosk — free, offline)" },
           { value: "webspeech", label: "Wake word (Web Speech — browser)" },
         ]}

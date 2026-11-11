@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ThemeTopBar } from "./theme-top-bar";
 import { TextComposer } from "./text-composer";
 import type { DexThemeProps } from "../types";
+import { PTT_HINT } from "@/lib/hotkeys";
 
 // Shared chrome for the minimalist themes (dot, cursor): a solid background, a
 // centred visual, and a borderless transcript that only appears when there's
@@ -62,7 +63,7 @@ export function MinimalShell({
             type="button"
             onClick={onPushToTalk}
             className="group flex flex-col items-center gap-2"
-            title="Tap to talk (or press ⌘⇧Space)"
+            title={`Tap to talk (or press ${PTT_HINT})`}
           >
             {visual}
             <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground/70 transition group-hover:text-foreground/70">

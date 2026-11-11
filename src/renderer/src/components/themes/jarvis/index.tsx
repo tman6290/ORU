@@ -6,6 +6,7 @@ import { ThemeTopBar } from "../shared/theme-top-bar";
 import { OverlayTranscript } from "../shared/overlay-transcript";
 import type { DexThemeProps, DexThemeDef } from "../types";
 import type { TranscriptTurn } from "@/lib/dex/state";
+import { PTT_HINT } from "@/lib/hotkeys";
 
 // Decorative HUD corner bracket.
 function Corner({ className }: { className: string }) {
@@ -165,7 +166,7 @@ function JarvisTheme(props: DexThemeProps) {
             type="button"
             onClick={onPushToTalk}
             className="group flex flex-col items-center"
-            title="Tap to talk (or press ⌘⇧Space)"
+            title={`Tap to talk (or press ${PTT_HINT})`}
           >
             <JarvisReactor status={status} getAmplitude={getAmplitude} />
             <span className="-mt-4 font-mono text-[10px] uppercase tracking-[0.3em] text-primary/50 group-hover:text-foreground">

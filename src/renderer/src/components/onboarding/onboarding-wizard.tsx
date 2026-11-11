@@ -1,3 +1,4 @@
+import { PTT_HINT } from "@/lib/hotkeys";
 import { useState } from "react";
 import type {
   DeepPartial,
@@ -223,7 +224,7 @@ export function OnboardingWizard({
                     hint="The wake word (or push-to-talk) connects a session; it hangs up after a stretch of silence."
                     value={config.voiceInput.wakeMode}
                     options={[
-                      { value: "manual", label: "Push to talk (click / ⌘⇧Space)" },
+                      { value: "manual", label: `Push to talk (click / ${PTT_HINT})` },
                       { value: "vosk", label: "Wake word (Vosk — free, offline)" },
                       { value: "webspeech", label: "Wake word (Web Speech)" },
                     ]}
@@ -299,7 +300,7 @@ export function OnboardingWizard({
             hint="Push-to-talk and Vosk need no paid key."
             value={config.voiceInput.wakeMode}
             options={[
-              { value: "manual", label: "Push to talk (click / ⌘⇧Space)" },
+              { value: "manual", label: `Push to talk (click / ${PTT_HINT})` },
               { value: "vosk", label: "Wake word (Vosk — free, offline)" },
               { value: "webspeech", label: "Wake word (Web Speech)" },
             ]}

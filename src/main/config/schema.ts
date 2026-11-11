@@ -166,9 +166,13 @@ export const DEFAULT_CONFIG: OpenDexConfig = {
   },
   appearance: { theme: "editorial", showToolActivity: true },
   // `Alt+Space` reads as ⌥Space on macOS (low-conflict). On Windows Alt+Space
-  // opens the system window menu and won't register; the registrar falls back to
-  // a secondary accelerator in that case (see registerSummonHotkey in index.ts).
-  hotkeys: { summon: "Alt+Space" },
+  // opens the system window menu, so Windows defaults to Ctrl+Alt+Space (D11).
+  hotkeys: {
+    summon:
+      typeof process !== "undefined" && process.platform === "win32"
+        ? "Control+Alt+Space"
+        : "Alt+Space",
+  },
   skills: {
     // `computer` is opt-in (off until the user enables it in Settings).
     enabled: { open: true, computer: false },

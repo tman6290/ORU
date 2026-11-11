@@ -1762,7 +1762,7 @@ export function useDex(options: UseDexOptions): UseDexResult {
     return off;
   }, [pushToTalk]);
 
-  // Global emergency-stop hotkey (⌘/Ctrl+Esc) → abort the current command.
+  // Global emergency-stop hotkey (see lib/hotkeys.ts) → abort the current command.
   useEffect(() => {
     const off = window.opendex.onInterrupt(() => interrupt());
     return off;

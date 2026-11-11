@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { ToolCardLayer } from "@skills/tool-card-layer";
 import { cn } from "@/lib/utils";
 import type { DexThemeProps, DexThemeDef } from "../types";
+import { PTT_HINT } from "@/lib/hotkeys";
 
 // A warm, editorial theme: the conversation reads like a page — the latest reply
 // set as large hero type over a warm dark ground, recent turns collected in a
@@ -125,7 +126,7 @@ function EditorialTheme(props: DexThemeProps) {
           <button
             type="button"
             onClick={onPushToTalk}
-            title="Tap to talk (or press ⌘⇧Space)"
+            title={`Tap to talk (or press ${PTT_HINT})`}
             className="pointer-events-auto rounded-full p-1 transition hover:opacity-80"
           >
             {mark}

@@ -779,9 +779,11 @@ function registerPushToTalkHotkey() {
 
 function registerInterruptHotkey() {
   // Global emergency stop — works even while another app has focus (essential
-  // during computer-use, where OpenDex isn't the focused window). Aborts the
-  // running command in the renderer.
-  const accelerator = "CommandOrControl+Escape";
+  // during computer-use, where ORU isn't the focused window). Aborts the
+  // running command in the renderer. Ctrl+Esc opens the Start menu on Windows,
+  // so Windows uses Ctrl+Alt+Backspace (D11). Keep lib/hotkeys.ts in sync.
+  const accelerator =
+    process.platform === "win32" ? "Control+Alt+Backspace" : "CommandOrControl+Escape";
   try {
     globalShortcut.register(accelerator, () => {
       mainWindow?.webContents.send(IPC.interrupt);
@@ -794,17 +796,19 @@ function registerInterruptHotkey() {
 let summonAccelerator = "";
 
 // Spotlight/Siri-style summon: toggle the main window from anywhere. Tries the
-// configured accelerator first; if it can't be registered (e.g. Alt+Space is
-// reserved for the system window menu on Windows), falls back to a safe chord.
+// configured accelerator first, then fallbacks. Alt+Space is skipped on Windows
+// (it opens the system window menu), and no fallback reuses the push-to-talk
+// chord (D11).
 function registerSummonHotkey() {
   if (summonAccelerator) {
     globalShortcut.unregister(summonAccelerator);
     summonAccelerator = "";
   }
   const configured = getConfig().hotkeys.summon;
-  const candidates = [configured, "Control+Alt+Space", "Control+Shift+Space"];
+  const candidates = [configured, "Control+Alt+Space", "Control+Alt+O"];
   for (const accelerator of candidates) {
     if (!accelerator || globalShortcut.isRegistered(accelerator)) continue;
+    if (process.platform === "win32" && accelerator === "Alt+Space") continue;
     try {
       const ok = globalShortcut.register(accelerator, () => summonWindow());
       if (ok) {

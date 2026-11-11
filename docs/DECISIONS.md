@@ -37,3 +37,9 @@ Email, calls, file deletion, shell commands and screen control pass through the 
 
 ## D10. Reference images stay out of git (2026-11-11)
 `reference/` images are ignored so third-party artwork does not land in a public repo.
+
+## D11. Windows hotkeys (2026-11-11)
+Push-to-talk stays Ctrl+Shift+Space. Interrupt is Ctrl+Alt+Backspace on Windows (Ctrl+Esc opens Start); macOS and Linux keep Cmd/Ctrl+Esc. Summon defaults to Ctrl+Alt+Space on Windows (Alt+Space opens the window menu), falling back to Ctrl+Alt+O; no fallback reuses the push-to-talk chord. UI labels come from `renderer/src/lib/hotkeys.ts`.
+
+## D12. Package identity (2026-11-11)
+appId `tech.wolban.oru`, productName `ORU`, package name `oru`. electron-builder `publish` is `null`, so packaged builds never look for updates.
