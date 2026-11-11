@@ -5,7 +5,7 @@ Claude Code: read this file at the start of each session and update it at the en
 ## Current state
 
 - Phase in progress: 1 (code done, waiting on Tofa's `pnpm dev` check)
-- App runs on Tofa's machine: builds; launch not yet confirmed
+- App runs on Tofa's machine: yes (pnpm dev opens a window titled ORU; onboarding runs)
 - Last session: 2026-11-11, Phase 1
 
 ## Phases
@@ -34,6 +34,7 @@ Done:
 - Windows hotkeys (D11): interrupt Ctrl+Alt+Backspace, summon Ctrl+Alt+Space (fallback Ctrl+Alt+O), push-to-talk unchanged. UI hints read from `renderer/src/lib/hotkeys.ts`.
 - Trimmed site/, RELEASING.md, screenshots/, assets/download/, release/pages/pr-review workflows, release-note and PR-review scripts. Kept CONTRIBUTING.md (AGENTS.md links to it for themes and skills) and ci.yml.
 - New README.
+- After Tofa's first launch: onboarding's Language model step blocked on Windows without a cloud key. Added "Set up later" (skip until Phase 6), hid the OpenDex subscription card, and made a missing gateway key say "no language model is set up yet".
 Not done:
 - `pnpm dev` launch and hotkey checks on Tofa's machine.
 Decisions: D11 (Windows hotkeys), D12 (package identity).
@@ -56,11 +57,11 @@ Next step:
 
 ## Open questions for Tofa
 
-- The Language model list still shows OpenDex's "OpenDex" subscription provider (marked coming soon). Remove or hide it in Phase 6?
 - The default wake word is now `oru`. The Vosk English model may not know that word, so wake detection could miss it. Check in Phase 5.
 
 ## Known issues
 
+- Phase 6: replace onboarding's "Set up later" skip with the Ollama provider and fix the step subtitle ("free on-device" is macOS-only today).
 - AGENTS.md is stale in two places: the Summon hotkey bullet (Phase 7 section) still says Alt+Space with a Control+Shift+Space fallback, and there is no longer an update banner or analytics. D11 is the current behaviour.
 - `pnpm install` skipped build scripts for electron-winstaller, esbuild, onnxruntime-node and protobufjs (pnpm 10 default). Build and typecheck pass anyway; revisit with `pnpm approve-builds` if packaging or local Whisper fails.
 - Saved configs from an earlier run keep `hotkeys.summon = Alt+Space`. On Windows the registrar skips it and uses Ctrl+Alt+Space.

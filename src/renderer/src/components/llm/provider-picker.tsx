@@ -99,7 +99,10 @@ export function ProviderPicker({
 }) {
   const isMac = window.opendex.platform === "darwin";
   // Hide Apple entirely off-Mac; show it disabled-with-reason on Macs.
-  const providers = LLM_PROVIDERS.filter((p) => !(p.id === "apple" && !isMac));
+  // ORU hides OpenDex's hosted subscription (it isn't ORU's service).
+  const providers = LLM_PROVIDERS.filter(
+    (p) => p.id !== "opendex" && !(p.id === "apple" && !isMac),
+  );
   const meta = selected ? getProviderMeta(selected) : undefined;
 
   // When the user picks a configurable provider, reveal its model/key section.

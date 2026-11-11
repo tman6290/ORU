@@ -44,7 +44,11 @@ export async function resolveModel(config: OpenDexConfig): Promise<LanguageModel
     case "gateway":
     default:
       // A bare model id routes through the SDK's global AI Gateway provider,
-      // which reads AI_GATEWAY_API_KEY from the environment.
+      // which reads AI_GATEWAY_API_KEY from the environment. ORU: onboarding's
+      // "Set up later" leaves this default with no key, so say so plainly.
+      if (!process.env.AI_GATEWAY_API_KEY) {
+        throw new Error("no language model is set up yet. Choose one in Settings, Language model");
+      }
       return model;
   }
 }

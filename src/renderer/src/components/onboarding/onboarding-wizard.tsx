@@ -429,14 +429,27 @@ export function OnboardingWizard({
             >
               Back
             </button>
-            <button
-              type="button"
-              disabled={blocked}
-              onClick={() => (isLast ? onComplete() : setStepIndex((i) => i + 1))}
-              className="rounded-full bg-white px-6 py-2 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {isLast ? "Start using ORU" : "Continue"}
-            </button>
+            <div className="flex items-center gap-2">
+              {/* ORU: the local Ollama brain arrives in Phase 6. Until then the
+                  model step can be skipped; commands report that no model is set. */}
+              {step.key === "llm" && blocked && (
+                <button
+                  type="button"
+                  onClick={() => setStepIndex((i) => i + 1)}
+                  className="rounded-full px-4 py-2 text-sm text-white/50 transition hover:text-white"
+                >
+                  Set up later
+                </button>
+              )}
+              <button
+                type="button"
+                disabled={blocked}
+                onClick={() => (isLast ? onComplete() : setStepIndex((i) => i + 1))}
+                className="rounded-full bg-white px-6 py-2 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {isLast ? "Start using ORU" : "Continue"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
