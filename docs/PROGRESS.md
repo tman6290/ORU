@@ -4,13 +4,13 @@ Claude Code: read this file at the start of each session and update it at the en
 
 ## Current state
 
-- Phase in progress: 1 (code done, waiting on Tofa's `pnpm dev` check)
+- Phase in progress: 2 (not started). Phase 1 done.
 - App runs on Tofa's machine: yes (pnpm dev opens a window titled ORU; onboarding runs)
 - Last session: 2026-11-11, Phase 1
 
 ## Phases
 
-- [ ] 1. Baseline: run the fork on Windows, remove analytics and auto-update, rebrand to ORU
+- [x] 1. Baseline: run the fork on Windows, remove analytics and auto-update, rebrand to ORU
 - [ ] 2. Shell: fullscreen desktop layer, hidden taskbar, Windows view toggle, safe restore
 - [ ] 3. Face: the ORU theme (orb, mind and gear visuals, Odù glyphs, live system panels)
 - [ ] 4. Voice out: local neural voice, real audio driving the orb, spoken greeting
@@ -36,7 +36,7 @@ Done:
 - New README.
 - After Tofa's first launch: onboarding's Language model step blocked on Windows without a cloud key. Added "Set up later" (skip until Phase 6), hid the OpenDex subscription card, and made a missing gateway key say "no language model is set up yet".
 Not done:
-- `pnpm dev` launch and hotkey checks on Tofa's machine.
+- Nothing. Tofa ran the manual tests below on 2026-11-11 and all passed. The interrupt hotkey could only be checked for "no Start menu" until a model exists (Phase 6).
 Decisions: D11 (Windows hotkeys), D12 (package identity).
 Manual tests for Tofa:
 1. `pnpm dev`: the window is titled ORU; onboarding finishes with no analytics step; Settings → Privacy shows "ORU sends no usage data".
@@ -44,7 +44,7 @@ Manual tests for Tofa:
 3. While a command runs, press Ctrl+Alt+Backspace. The command stops and the Start menu does not open.
 4. Press Ctrl+Alt+Space from another app. ORU shows and hides, and no window menu appears.
 5. Tray icon tooltip and menu read "ORU", "Show ORU", "Quit ORU".
-Next step: Tofa reports the `pnpm dev` result, then Phase 2 (`prompts/02-shell.md`).
+Next step: Phase 2 (`prompts/02-shell.md`).
 
 ```
 ### YYYY-MM-DD, Phase N
