@@ -98,7 +98,7 @@ function createWindow() {
     minWidth: 360,
     minHeight: 420,
     backgroundColor: "#0a0a0a",
-    title: "OpenDex",
+    title: "ORU",
     show: false,
     // Frameless, native-feeling chrome on macOS: hide the title bar and let the
     // renderer fill to the top edge, keeping the traffic lights inset over it.
@@ -445,7 +445,7 @@ function openSettingsWindow() {
     minWidth: 560,
     minHeight: 480,
     backgroundColor: "#0a0a0a",
-    title: "OpenDex Settings",
+    title: "ORU Settings",
     show: false,
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
@@ -830,14 +830,14 @@ function createTray() {
     console.error("[opendex] failed to create tray", err);
     return;
   }
-  tray.setToolTip("OpenDex");
+  tray.setToolTip("ORU");
   const menu = Menu.buildFromTemplate([
-    { label: "Show OpenDex", click: () => summonWindow({ toggle: false }) },
+    { label: "Show ORU", click: () => summonWindow({ toggle: false }) },
     { type: "separator" },
     { label: "Settings…", click: () => openSettingsWindow() },
     { type: "separator" },
     {
-      label: "Quit OpenDex",
+      label: "Quit ORU",
       click: () => {
         isQuitting = true;
         app.quit();

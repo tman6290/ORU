@@ -1,16 +1,12 @@
 {
-  "name": "opendex",
+  "name": "oru",
+  "productName": "ORU",
   "version": "1.1.14",
-  "description": "OpenDex — a voice-first agentic harness for the desktop.",
+  "description": "ORU, a voice-first desktop assistant for Windows. Fork of OpenDex.",
   "private": true,
   "packageManager": "pnpm@10.8.1",
   "author": {
-    "name": "wassgha",
-    "email": "wassgha@gmail.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/wassgha/opendex.git"
+    "name": "Tofarati Farinu"
   },
   "main": "./out/main/index.js",
   "scripts": {
@@ -66,8 +62,8 @@
     "vite": "^7.3.5"
   },
   "build": {
-    "appId": "io.opendex.app",
-    "productName": "OpenDex",
+    "appId": "tech.wolban.oru",
+    "productName": "ORU",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -105,8 +101,8 @@
       "entitlementsInherit": "build/entitlements.mac.plist",
       "notarize": true,
       "extendInfo": {
-        "NSMicrophoneUsageDescription": "OpenDex listens to your voice to run agentic commands.",
-        "NSCameraUsageDescription": "OpenDex may capture the screen to see and control your desktop."
+        "NSMicrophoneUsageDescription": "ORU listens to your voice to run commands.",
+        "NSCameraUsageDescription": "ORU may capture the screen to see and control your desktop."
       }
     },
     "win": {

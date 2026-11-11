@@ -173,7 +173,7 @@ function EditorialTheme(props: DexThemeProps) {
                     isUser ? "text-primary/80" : "text-card-foreground/40",
                   )}
                 >
-                  {isUser ? "You" : name || "Dex"}
+                  {isUser ? "You" : name || "ORU"}
                 </span>
                 <p className="text-sm leading-relaxed text-card-foreground/90">
                   {cleanText(t.content) || "…"}

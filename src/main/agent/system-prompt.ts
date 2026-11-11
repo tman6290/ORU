@@ -45,7 +45,7 @@ If a request is ambiguous, ask one short clarifying question rather than guessin
 // The base persona: a custom personality if the user wrote one (else the
 // built-in), plus the gender-derived address rule, plus the fixed spoken rules.
 export function buildPersona(config: OpenDexConfig): string {
-  const displayName = config.assistant.name.trim() || "OpenDex";
+  const displayName = config.assistant.name.trim() || "ORU";
   const custom = config.assistant.persona?.trim();
   const character = custom || `You are ${displayName}, ${DEFAULT_PERSONA}`;
   return `${character}\n\n${addressInstruction(config.assistant.userGender)}\n\n${spokenRules(displayName)}`;

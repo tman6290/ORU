@@ -13,7 +13,7 @@ export function App() {
     return (
       <main className="flex flex-1 items-center justify-center">
         <div className="font-mono text-xs uppercase tracking-[0.4em] text-white/30">
-          OpenDex
+          ORU
         </div>
       </main>
     );
@@ -153,7 +153,7 @@ function MainExperience({ data }: { data: PublicConfig }) {
           <div className="text-2xl font-light">Tap anywhere to enable audio</div>
           <div className="max-w-sm text-center text-xs text-muted-foreground">
             Audio playback needs a single interaction to start. Once enabled,
-            OpenDex will speak automatically from here on.
+            ORU will speak automatically from here on.
           </div>
         </button>
       )}

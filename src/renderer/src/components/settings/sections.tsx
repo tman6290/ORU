@@ -98,7 +98,7 @@ function AssistantSection({ data, setConfig }: SectionProps) {
         label="Personality (custom system prompt)"
         hint="Replaces the built-in persona. The spoken-output rules (short replies, no markdown, etc.) and your address preference are always kept. Leave blank for the default."
         value={config.assistant.persona}
-        placeholder="e.g. You are Dex, a warm, concise, no-nonsense assistant who keeps things casual and gets to the point."
+        placeholder="e.g. You are ORU, a warm, concise, no-nonsense assistant who keeps things casual and gets to the point."
         onChange={(v) => setConfig({ assistant: { persona: v } })}
       />
     </>
@@ -264,7 +264,7 @@ function AppearanceSection({ data, setConfig }: SectionProps) {
       </ToggleRow>
       <HotkeyField
         label="Summon hotkey"
-        hint="Global shortcut to show / hide OpenDex from anywhere (Spotlight-style)."
+        hint="Global shortcut to show / hide ORU from anywhere."
         value={config.hotkeys.summon}
         onChange={(accelerator) => setConfig({ hotkeys: { summon: accelerator } })}
       />

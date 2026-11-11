@@ -48,7 +48,7 @@ function ensureInputAccess(): { ok: true } | { error: string } {
   }
   return {
     error:
-      "I don't have Accessibility permission, so I can't control the mouse or keyboard yet. I've opened the request — please enable OpenDex (in dev, the Electron app) under System Settings, Privacy and Security, Accessibility, then restart me and try again.",
+      "I don't have Accessibility permission, so I can't control the mouse or keyboard yet. I've opened the request — please enable ORU (in dev, the Electron app) under System Settings, Privacy and Security, Accessibility, then restart me and try again.",
   };
 }
 

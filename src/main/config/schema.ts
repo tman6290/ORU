@@ -134,7 +134,7 @@ export interface PublicConfig {
 
 export const DEFAULT_CONFIG: OpenDexConfig = {
   version: 1,
-  assistant: { name: "Dex", wakeWord: "dex", userGender: "unspecified", persona: "" },
+  assistant: { name: "ORU", wakeWord: "oru", userGender: "unspecified", persona: "" },
   // Defaults to the gateway so configs written before the provider field
   // (which only had `llm.model`) keep working after upgrade. First-run
   // onboarding forces an explicit choice regardless.

@@ -153,7 +153,7 @@ export function OnboardingWizard({
     {
       key: "voicemode",
       title: "How conversations run",
-      subtitle: "Two ways to talk to OpenDex — you can switch anytime in Settings.",
+      subtitle: "Two ways to talk to ORU — you can switch anytime in Settings.",
       render: () => (
         <div className="flex flex-col gap-3">
           <VoiceModeCard
@@ -244,7 +244,7 @@ export function OnboardingWizard({
     {
       key: "voice",
       title: "Voice",
-      subtitle: "How OpenDex speaks back to you.",
+      subtitle: "How ORU speaks back to you.",
       render: () => (
         <>
           <SegmentedControl
@@ -331,7 +331,7 @@ export function OnboardingWizard({
     {
       key: "appearance",
       title: "Voice visualization",
-      subtitle: "Pick how OpenDex appears while listening and speaking.",
+      subtitle: "Pick how ORU appears while listening and speaking.",
       render: () => (
         <ThemePicker
           value={config.appearance.theme}
@@ -342,7 +342,7 @@ export function OnboardingWizard({
     {
       key: "greeting",
       title: "Greeting",
-      subtitle: "What OpenDex says the first time you wake it each session.",
+      subtitle: "What ORU says the first time you wake it each session.",
       render: () => (
         <>
           <SelectField
@@ -434,7 +434,7 @@ export function OnboardingWizard({
               onClick={() => (isLast ? onComplete() : setStepIndex((i) => i + 1))}
               className="rounded-full bg-white px-6 py-2 text-sm font-medium text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {isLast ? "Start using OpenDex" : "Continue"}
+              {isLast ? "Start using ORU" : "Continue"}
             </button>
           </div>
         </div>

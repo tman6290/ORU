@@ -75,7 +75,7 @@ function escapeRegExp(s: string): string {
 }
 
 function buildWakeRegex(word: string): RegExp {
-  const cleaned = word.trim() || "dex";
+  const cleaned = word.trim() || "oru";
   return new RegExp(`\\b${escapeRegExp(cleaned)}\\b`, "i");
 }
 

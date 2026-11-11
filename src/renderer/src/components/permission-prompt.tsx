@@ -37,7 +37,7 @@ export function PermissionPrompt({
         {request.detail}
       </p>
       <p className="text-xs text-muted-foreground">
-        OpenDex wants to perform this action. Allow it?
+        ORU wants to perform this action. Allow it?
       </p>
 
       <div className="mt-auto grid grid-cols-2 gap-2">

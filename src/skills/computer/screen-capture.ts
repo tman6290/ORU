@@ -88,7 +88,7 @@ export async function captureScreen(
   ) {
     return {
       error:
-        "I don't have Screen Recording permission, so I can't see the screen yet. Please enable OpenDex (in dev, the Electron app) under System Settings, Privacy and Security, Screen Recording, then restart me and try again.",
+        "I don't have Screen Recording permission, so I can't see the screen yet. Please enable ORU (in dev, the Electron app) under System Settings, Privacy and Security, Screen Recording, then restart me and try again.",
     };
   }
 
@@ -114,7 +114,7 @@ export async function captureScreen(
   if (image.isEmpty()) {
     return {
       error:
-        "Screen capture came back empty. On macOS, grant OpenDex Screen Recording permission in System Settings → Privacy & Security, then try again.",
+        "Screen capture came back empty. On macOS, grant ORU Screen Recording permission in System Settings → Privacy & Security, then try again.",
     };
   }
 
