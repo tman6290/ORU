@@ -4,7 +4,7 @@ Claude Code: read this file at the start of each session and update it at the en
 
 ## Current state
 
-- Phase in progress: 3 (built, waiting for Tofa's manual tests and measurements). Phases 1 and 2 done.
+- Phase in progress: 4 (not started). Phases 1, 2 and 3 done.
 - App runs on Tofa's machine: yes (pnpm dev opens a window titled ORU; onboarding runs)
 - Last session: 2026-11-12, Phases 2 and 3
 
@@ -12,7 +12,7 @@ Claude Code: read this file at the start of each session and update it at the en
 
 - [x] 1. Baseline: run the fork on Windows, remove analytics and auto-update, rebrand to ORU
 - [x] 2. Shell: fullscreen desktop layer, hidden taskbar, Windows view toggle, safe restore
-- [ ] 3. Face: the ORU theme (orb, mind and gear visuals, Odù glyphs, live system panels)
+- [x] 3. Face: the ORU theme (orb, mind and gear visuals, Odù glyphs, live system panels)
 - [ ] 4. Voice out: local neural voice, real audio driving the orb, spoken greeting
 - [ ] 5. Voice in: push-to-talk, local Whisper on GPU, "Hey Oru" wake word
 - [ ] 6. Brain: Ollama provider, model choice for this GPU, ORU persona
@@ -35,7 +35,7 @@ Done:
 - Fixed during preview: orb cleanup lost the WebGL context, so React StrictMode's second mount fell back to a CSS circle.
 - `pnpm preview:oru` renders the theme in a browser with fake data (port 5174); used to check 1280x800 and 1920x1080 layouts, all six orb states and the typing panel.
 Not done:
-- Measurements on the Legion (frame rate, idle GPU) and Tofa's manual tests below.
+- Frame rate and idle GPU numbers were not reported; measure them at the start of Phase 4 or in the Phase 10 performance pass. Tofa ran the manual tests below on 2026-11-12 and all passed.
 - "I want to type" by voice opens the typing panel: needs skills (Phase 7). Type button and summon hotkey work now.
 Decisions: D16, D17, D18.
 Manual tests for Tofa:
