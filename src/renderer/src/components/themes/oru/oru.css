@@ -1,0 +1,166 @@
+/* ORU theme (Phase 3). Tokens come from docs/DESIGN.md; layout from D16. */
+@import "@fontsource-variable/oxanium";
+@import "@fontsource-variable/jetbrains-mono";
+
+[data-dex-theme="oru"] {
+  /* ── ORU tokens (DESIGN.md "Colour") ─────────────────────────────────── */
+  --oru-bg: #020503;
+  --oru-bg-raised: #07120a;
+  --oru-primary: #39ff14;
+  --oru-primary-dim: #1e8f0e;
+  --oru-primary-faint: #0c3a08;
+  --oru-glow: rgba(57, 255, 20, 0.35);
+  --oru-text: #d6ffd0;
+  --oru-text-muted: #6faf68;
+  --oru-warn: #ffb000;
+  --oru-danger: #ff3b3b;
+
+  /* ── Shared dex tokens mapped onto ORU's, so shared chrome (composer,
+     tool cards, settings popovers) matches inside the theme. ───────────── */
+  --background: var(--oru-bg);
+  --foreground: var(--oru-text);
+  --card: var(--oru-bg-raised);
+  --card-foreground: var(--oru-text);
+  --popover: var(--oru-bg-raised);
+  --popover-foreground: var(--oru-text);
+  --primary: var(--oru-primary);
+  --primary-foreground: var(--oru-bg);
+  --secondary: #0b1f0e;
+  --secondary-foreground: var(--oru-text);
+  --muted: #0b1f0e;
+  --muted-foreground: var(--oru-text-muted);
+  --accent: #0f2a12;
+  --accent-foreground: var(--oru-text);
+  --destructive: var(--oru-danger);
+  --border: #14401a;
+  --input: #14401a;
+  --ring: var(--oru-primary);
+  --dex-glow: var(--oru-primary);
+  --dex-active: var(--oru-primary);
+  --dex-idle: var(--oru-primary-dim);
+  --dex-surface: #041008;
+
+  --oru-font-display: "Oxanium Variable", "Segoe UI", sans-serif;
+  --oru-font-mono: "JetBrains Mono Variable", Consolas, monospace;
+
+  font-family: var(--oru-font-mono);
+  background: var(--oru-bg);
+  color: var(--oru-text);
+}
+
+/* ── Type ───────────────────────────────────────────────────────────────── */
+.oru-label {
+  font-family: var(--oru-font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--oru-text-muted);
+}
+.oru-value {
+  font-family: var(--oru-font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--oru-text);
+}
+
+/* ── Panel frame: cut corners (top-left, bottom-right), thin neon edge ──── */
+.oru-panel {
+  --cut: 14px;
+  position: relative;
+  background: linear-gradient(180deg, rgba(7, 18, 10, 0.82), rgba(4, 12, 6, 0.72));
+  clip-path: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
+  padding: 14px 16px;
+}
+/* The edge is drawn by a pseudo-element with the same clip, inset 1px. */
+.oru-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(57, 255, 20, 0.55), rgba(30, 143, 14, 0.18) 40%, rgba(57, 255, 20, 0.35));
+  clip-path: inherit;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+  pointer-events: none;
+}
+.oru-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.oru-panel-title::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: var(--oru-primary);
+  box-shadow: 0 0 8px var(--oru-glow);
+  transform: rotate(45deg);
+}
+
+/* ── Controls (bottom right) ───────────────────────────────────────────── */
+.oru-control {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  color: var(--oru-text-muted);
+  border: 1px solid rgba(57, 255, 20, 0.25);
+  background: rgba(4, 16, 8, 0.75);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  transition: color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+.oru-control:hover,
+.oru-control[data-on="true"] {
+  color: var(--oru-primary);
+  background: rgba(12, 58, 8, 0.6);
+  box-shadow: inset 0 0 12px rgba(57, 255, 20, 0.25);
+}
+.oru-control:focus-visible {
+  outline: 1px solid var(--oru-primary);
+  outline-offset: 2px;
+}
+
+/* ── Typing panel slide ────────────────────────────────────────────────── */
+.oru-typing {
+  transition:
+    transform 260ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 260ms ease;
+}
+.oru-typing[data-open="false"] {
+  transform: translateY(24px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Transcript fade: older lines dim out toward the top ─────────────────── */
+.oru-fade-top {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 35%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 35%);
+}
+
+/* ── Event accents (150–300 ms, DESIGN.md "Motion") ──────────────────────── */
+@keyframes oru-blip {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+.oru-blip {
+  animation: oru-blip 260ms ease-out forwards;
+}
+@keyframes oru-card-in {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: none; }
+}
+.oru-card-in {
+  animation: oru-card-in 220ms ease-out both;
+}

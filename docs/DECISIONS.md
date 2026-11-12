@@ -52,3 +52,12 @@ ORU turns on taskbar auto-hide with `SHAppBarMessage(ABM_SETSTATE)` and restores
 
 ## D15. koffi for Win32 calls (2026-11-12)
 koffi (prebuilt N-API binaries, no compiler) calls user32, shell32 and dwmapi from the main process. Its install script is not needed: the binary ships in `@koromix/koffi-win32-x64`.
+
+## D16. ORU theme layout (2026-11-12)
+Tofa's picks: the mind lattice arcs above the orb as a constellation; the orb is clean glass with a noise surface and faint glyphs inside. Panels stay lean and every one shows real, explainable data (system, transcript, actions, clock); no decorative fake panels from the references. Image 03 informs panel styling only (cut-corner frames, radial gauges, line charts).
+
+## D17. Orb in raw WebGL2 (2026-11-12)
+The orb is a WebGL2 fragment shader (noise-displaced sphere, fresnel rim, glow) plus a point-sprite particle shell, with no 3D library. Keeps the bundle small and the frame budget in our hands. Everything else in the theme is SVG, canvas 2D and CSS driven by one shared frame clock.
+
+## D18. Fonts (2026-11-12)
+Oxanium (display, labels) and JetBrains Mono (data, transcript), both OFL-1.1, bundled through `@fontsource-variable` so ORU works offline.
