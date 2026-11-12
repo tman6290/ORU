@@ -127,7 +127,7 @@
 .oru-panel {
   --cut: 14px;
   position: relative;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--oru-bg-raised) 82%, transparent), color-mix(in srgb, var(--oru-well) 72%, transparent));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--oru-bg-raised) 60%, transparent), color-mix(in srgb, var(--oru-well) 45%, transparent));
   clip-path: polygon(
     var(--cut) 0,
     100% 0,
@@ -136,14 +136,14 @@
     0 100%,
     0 var(--cut)
   );
-  padding: 14px 16px;
+  padding: 12px 14px;
 }
 /* The edge is drawn by a pseudo-element with the same clip, inset 1px. */
 .oru-panel::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(160deg, color-mix(in srgb, var(--oru-primary) 55%, transparent), color-mix(in srgb, var(--oru-primary-dim) 18%, transparent) 40%, color-mix(in srgb, var(--oru-primary) 35%, transparent));
+  background: linear-gradient(160deg, color-mix(in srgb, var(--oru-primary) 32%, transparent), color-mix(in srgb, var(--oru-primary-dim) 10%, transparent) 40%, color-mix(in srgb, var(--oru-primary) 18%, transparent));
   clip-path: inherit;
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,

@@ -54,6 +54,7 @@ Follow-up after Tofa's review (same day):
 - Every theme colour now comes from registered CSS tokens (`oru.css`, `palette.ts`), so the red swap animates over 400 ms.
 - Main window `autoplayPolicy: no-user-gesture-required`, so alarms and the Phase 4 greeting play without a click.
 - Phase 4 prompt gains "alerts in ORU's voice"; Phase 7 gains a security monitor that raises critical alerts.
+- Size hierarchy (D20): orb 25% larger on the Legion (visible sphere ~196 → ~244 px at 1280x800), panels narrower and quieter, halo behind the orb. Layout check clean at both sizes with typing panel and alert banner.
 Next step: Tofa runs the tests and reports the two numbers; then Phase 4 (`prompts/04-voice-out.md`).
 
 ### 2026-11-12, Phase 2

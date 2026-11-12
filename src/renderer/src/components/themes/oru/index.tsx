@@ -139,7 +139,7 @@ function fakeLevel(t: number) {
 }
 
 /** Panel column widths (px), shared by the panels and the stage geometry. */
-const PANEL = { margin: 32, left: 300, right: 340 };
+const PANEL = { margin: 32, left: 248, right: 280 };
 
 function OruTheme(props: DexThemeProps) {
   const {
@@ -219,8 +219,9 @@ function OruTheme(props: DexThemeProps) {
 
   // ── Geometry. The centre stage fits the space the panels leave free, so
   // nothing overlaps (check with oruLayoutCheck() in `pnpm preview:oru`).
-  // Measured spans, in orb sizes: ring width 1.64; lattice top 0.88 above the
-  // orb centre; platform bottom 0.92 below it.
+  // Measured spans (oruLayoutCheck, in orb sizes): widest piece 1.52 (ring);
+  // lattice top 0.78 above the orb centre; platform bottom 0.82 below it.
+  // The orb is the focus (D20): it takes all the space these allow.
   const GAP = 24;
   const leftEdge = PANEL.margin + PANEL.left + GAP;
   const rightEdge = vp.w - PANEL.margin - PANEL.right - GAP;
@@ -230,12 +231,12 @@ function OruTheme(props: DexThemeProps) {
   const orb = Math.max(
     160,
     Math.round(
-      Math.min((rightEdge - leftEdge) / 1.64, (stageBottom - stageTop) / 1.8, vp.h * 0.46),
+      Math.min((rightEdge - leftEdge) / 1.55, (stageBottom - stageTop) / 1.62, vp.h * 0.52),
     ),
   );
-  const ringSize = Math.round(orb * 1.62);
-  const slack = stageBottom - stageTop - 1.8 * orb;
-  const orbCenterY = Math.round(stageTop + 0.88 * orb + Math.max(0, slack) / 2);
+  const ringSize = Math.round(orb * 1.5);
+  const slack = stageBottom - stageTop - 1.62 * orb;
+  const orbCenterY = Math.round(stageTop + 0.78 * orb + Math.max(0, slack) / 2);
   const orbCenter = useRef({ x: 0, y: 0 });
   orbCenter.current = { x: stageX, y: orbCenterY };
   const getOrbCenter = useCallback(() => orbCenter.current, []);
@@ -272,18 +273,31 @@ function OruTheme(props: DexThemeProps) {
 
       <GlyphStreams orbCenter={getOrbCenter} />
 
+      {/* Halo: the orb is the brightest thing on screen (D20). */}
+      <div
+        className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{
+          left: stageX,
+          top: orbCenterY,
+          width: orb * 2.4,
+          height: orb * 2.4,
+          background: `radial-gradient(circle, ${mix("primary", 16)} 0%, ${mix("primary", 6)} 35%, transparent 65%)`,
+          zIndex: 1,
+        }}
+      />
+
       {/* Centre stage */}
       <div
         className="pointer-events-none absolute -translate-x-1/2"
-        style={{ left: stageX, top: orbCenterY + orb * 0.42, zIndex: 1 }}
+        style={{ left: stageX, top: orbCenterY + orb * 0.4, zIndex: 1 }}
       >
-        <Platform width={ringSize * 0.95} />
+        <Platform width={ringSize * 0.75} />
       </div>
       <div
         className="pointer-events-none absolute -translate-x-1/2"
-        style={{ left: stageX, top: orbCenterY - orb * 0.46 - ringSize * 0.3, zIndex: 1 }}
+        style={{ left: stageX, top: orbCenterY - orb * 0.4 - ringSize * 0.26, zIndex: 1 }}
       >
-        <MindLattice width={ringSize * 1.0} />
+        <MindLattice width={ringSize * 0.85} />
       </div>
       <div
         className="absolute -translate-x-1/2 -translate-y-1/2"
@@ -324,7 +338,7 @@ function OruTheme(props: DexThemeProps) {
         <TranscriptPanel turns={transcript} liveCaption={liveCaption} wakeWord={wakeWord} />
         <ActionsPanel invocations={toolInvocations} />
         {unsupported && (
-          <div className="oru-panel w-[340px] text-[11px] text-[var(--oru-warn)]">
+          <div className="oru-panel w-[280px] text-[11px] text-[var(--oru-warn)]">
             Voice input is unavailable. Settings → Voice input → choose local Whisper, or use push-to-talk.
           </div>
         )}

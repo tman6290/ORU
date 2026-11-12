@@ -28,8 +28,9 @@ function boxOf(name: string, el: Element, inset = 0): Box {
   return { name, x0: r.left + dx, y0: r.top + dy, x1: r.right - dx, y1: r.bottom - dy };
 }
 
-// Pairs that are meant to overlap (the ring wraps the orb, etc.).
-const ALLOWED = new Set(["orb|ring", "orb|platform"]);
+// Pairs that are meant to overlap: the ring wraps the orb, the platform sits
+// under it, and the lattice arches over its top half.
+const ALLOWED = new Set(["orb|ring", "orb|platform", "lattice|orb"]);
 
 export function oruLayoutCheck() {
   const boxes: Box[] = [];

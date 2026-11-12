@@ -64,3 +64,6 @@ Oxanium (display, labels) and JetBrains Mono (data, transcript), both OFL-1.1, b
 
 ## D19. Alerts: neon red, and a klaxon for critical (2026-11-12)
 Tofa's rule: errors turn the whole interface neon red (same lightness and saturation, only the hue changes) and ORU says what went wrong; critical issues such as attacks also blink, sound an alarm and ORU repeats "Warning! Warning! …" until acknowledged. Alerts flow through one bus in main (`src/main/alerts.ts`, IPC `alert:raise` / `alerts:changed`). Every theme colour is a registered CSS token so the swap animates. Speech uses the built-in Windows voice until Phase 4.
+
+## D20. The orb is the focus (2026-11-12)
+Tofa: the panels overshadowed the orb. The orb takes the largest share of the screen; everything else is an instrument around it. Panels are narrower (248 and 280 px), more transparent and thinner-edged; the ring, lattice and platform hug the orb (ring 1.5x the orb); a halo behind the orb keeps it the brightest object. The stage fits between the panels using spans measured with `oruLayoutCheck()`.

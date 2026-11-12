@@ -116,7 +116,7 @@ function Gauge({ label, value, sub, title }: { label: string; value: number | nu
   const sweep = 0.75;
   return (
     <div className="flex flex-col items-center gap-1" title={title}>
-      <svg viewBox="0 0 64 64" className="h-[72px] w-[72px]">
+      <svg viewBox="0 0 64 64" className="h-[58px] w-[58px]">
         <circle
           cx="32" cy="32" r={r} fill="none" stroke="var(--oru-primary-faint)" strokeWidth="4"
           strokeDasharray={`${c * sweep} ${c}`} transform="rotate(135 32 32)" strokeLinecap="round"
@@ -174,7 +174,7 @@ export function SystemPanel({ live }: { live: LiveStats }) {
   const { stats, rxHistory, battery } = live;
   const gpu = stats?.gpu;
   return (
-    <div data-oru="system" className="oru-panel w-[300px]">
+    <div data-oru="system" className="oru-panel w-[248px]">
       <div className="oru-panel-title">
         <span className="oru-label">System</span>
       </div>
@@ -225,7 +225,7 @@ export function TranscriptPanel({
 }) {
   const recent = turns.slice(-6);
   return (
-    <div data-oru="transcript" className="oru-panel flex min-h-0 w-[340px] flex-col">
+    <div data-oru="transcript" className="oru-panel flex min-h-0 w-[280px] flex-col">
       <div className="oru-panel-title">
         <span className="oru-label">Transcript</span>
       </div>
@@ -262,7 +262,7 @@ export function TranscriptPanel({
 export function ActionsPanel({ invocations }: { invocations: ToolInvocation[] }) {
   const recent = invocations.slice(-5);
   return (
-    <div data-oru="actions" className="oru-panel w-[340px]">
+    <div data-oru="actions" className="oru-panel w-[280px]">
       <div className="oru-panel-title">
         <span className="oru-label">Actions</span>
       </div>
