@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { app, safeStorage } from "electron";
 import {
@@ -19,6 +19,8 @@ import {
 // exactly as before.
 
 let configPath = "";
+let backupPath = "";
+let eventsPath = "";
 let secretsPath = "";
 let cachedConfig: OpenDexConfig | null = null;
 let cachedSecrets: Record<string, string> = {};
@@ -28,7 +30,20 @@ function ensurePaths() {
   const dir = app.getPath("userData");
   mkdirSync(dir, { recursive: true });
   configPath = join(dir, "config.json");
+  // Last good copy of config.json. Restored automatically if config.json goes
+  // missing (Tofa lost his setup once, 2026-11-12, cause unknown).
+  backupPath = join(dir, "config.last-good.json");
+  // Plain-text log of config resets and restores, so a lost setup can be traced.
+  eventsPath = join(dir, "config-events.log");
   secretsPath = join(dir, "secrets.json");
+}
+
+function logConfigEvent(message: string) {
+  try {
+    appendFileSync(eventsPath, `${new Date().toISOString()} ${message}\n`, "utf8");
+  } catch {
+    // logging must never break config handling
+  }
 }
 
 function encryptionAvailable(): boolean {
@@ -51,9 +66,14 @@ function migrateConfig(raw: DeepPartial<OpenDexConfig>): DeepPartial<OpenDexConf
 
 function loadConfigFile(): OpenDexConfig {
   ensurePaths();
-  if (!existsSync(configPath)) return structuredClone(DEFAULT_CONFIG);
+  let source = configPath;
+  if (!existsSync(configPath)) {
+    if (!existsSync(backupPath)) return structuredClone(DEFAULT_CONFIG);
+    logConfigEvent("config.json missing at launch; restored from config.last-good.json");
+    source = backupPath;
+  }
   try {
-    const raw = JSON.parse(readFileSync(configPath, "utf8")) as DeepPartial<OpenDexConfig>;
+    const raw = JSON.parse(readFileSync(source, "utf8")) as DeepPartial<OpenDexConfig>;
     // Merge over defaults so new fields added in later versions are filled in.
     return mergeConfig(DEFAULT_CONFIG, migrateConfig(raw));
   } catch (err) {
@@ -107,7 +127,9 @@ function persistSecrets() {
 
 function persistConfig() {
   ensurePaths();
-  writeFileSync(configPath, JSON.stringify(cachedConfig, null, 2), "utf8");
+  const json = JSON.stringify(cachedConfig, null, 2);
+  writeFileSync(configPath, json, "utf8");
+  writeFileSync(backupPath, json, "utf8");
 }
 
 /** Push config-derived values into process.env so agent/TTS read them as before.
@@ -186,7 +208,8 @@ export function completeOnboarding(): PublicConfig {
  *  only cleared from the encrypted store, not from process.env). */
 export function resetConfig(): PublicConfig {
   ensurePaths();
-  for (const path of [configPath, secretsPath]) {
+  logConfigEvent("factory reset from Settings: config, backup and secrets deleted");
+  for (const path of [configPath, backupPath, secretsPath]) {
     try {
       if (existsSync(path)) rmSync(path);
     } catch (err) {
