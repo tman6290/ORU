@@ -66,7 +66,7 @@ function segmentPaths(i: number) {
 function RingSvg({ groupRefs }: { groupRefs: React.MutableRefObject<(SVGGElement | null)[]> }) {
   const segs = useMemo(() => Array.from({ length: SEGMENTS }, (_, i) => segmentPaths(i)), []);
   return (
-    <svg viewBox="0 0 200 200" className="h-full w-full overflow-visible">
+    <svg data-oru="ring" viewBox="0 0 200 200" className="h-full w-full overflow-visible">
       <g data-spin>
         {segs.map((s, i) => (
           <g

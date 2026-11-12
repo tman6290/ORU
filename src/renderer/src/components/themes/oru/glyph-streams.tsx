@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { getBudget, useFrame } from "./frame-clock";
 import { motion } from "./motion";
 import { drawOdu } from "./odu";
+import { PRIMARY, PRIMARY_DIM, lerpRgb, rgba } from "./palette";
 
 // Background data streams (DESIGN.md "Odù glyphs"): columns of Odù glyphs
 // drifting down behind the centre. What it means: ORU's activity level. They
@@ -77,6 +78,9 @@ export function GlyphStreams({ orbCenter }: { orbCenter: () => { x: number; y: n
     ctx.lineCap = "round";
 
     const flow = 0.4 + motion.energy * 2.2;
+    const head = lerpRgb(PRIMARY, motion.alert);
+    const tail = lerpRgb(PRIMARY_DIM, motion.alert);
+    const blink = 1 + motion.alarm * 0.8;
     const orb = orbCenter();
     for (const c of cols.current) {
       c.y += c.speed * flow * step;
@@ -92,11 +96,11 @@ export function GlyphStreams({ orbCenter }: { orbCenter: () => { x: number; y: n
       for (let k = 0; k < c.bytes.length; k++) {
         const y = c.y + (k - 1) * GAP;
         if (y < -GAP || y > h) continue;
-        const head = k === 1 ? 1 : 0;
+        const isHead = k === 1;
         const edge = Math.min(1, y / 120, (h - y) / 160);
-        const a = Math.max(0, colAlpha * edge * (head ? 0.9 : 0.35 + 0.25 * motion.energy));
+        const a = Math.min(1, Math.max(0, colAlpha * edge * blink * (isHead ? 0.9 : 0.35 + 0.25 * motion.energy)));
         if (a < 0.02) continue;
-        ctx.strokeStyle = head ? `rgba(57,255,20,${a})` : `rgba(30,143,14,${a})`;
+        ctx.strokeStyle = rgba(isHead ? head : tail, a);
         drawOdu(ctx, c.bytes[k], c.x - GLYPH * 0.3, y, GLYPH);
       }
     }
@@ -113,7 +117,7 @@ export function GlyphStreams({ orbCenter }: { orbCenter: () => { x: number; y: n
       g.x += (orb.x - g.x) * Math.min(1, dt * 2.4);
       g.y += (orb.y - g.y) * Math.min(1, dt * 2.4);
       if (g.life <= 0) return false;
-      ctx.strokeStyle = `rgba(57,255,20,${(g.life * 0.8).toFixed(3)})`;
+      ctx.strokeStyle = rgba(head, g.life * 0.8);
       drawOdu(ctx, g.byte, g.x - GLYPH * 0.3, g.y, GLYPH * (0.6 + g.life * 0.4));
       return true;
     });

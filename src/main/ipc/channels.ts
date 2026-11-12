@@ -65,6 +65,12 @@ export const IPC = {
   // renderer → main: one sample of live system numbers (CPU, RAM, GPU, network)
   // for the ORU theme's System panel. The renderer polls it; main never pushes.
   systemStats: "system:stats",
+  // Alerts (D19): renderer → main raise / acknowledge, renderer → main get the
+  // current list, main → all windows when the list changes.
+  alertRaise: "alert:raise",
+  alertAck: "alert:ack",
+  alertsGet: "alerts:get",
+  alertsChanged: "alerts:changed",
   // main → renderer event: the summon hotkey brought the window forward
   windowSummoned: "window:summoned",
   // notch renderer → main: set the notch window size (px). The renderer measures

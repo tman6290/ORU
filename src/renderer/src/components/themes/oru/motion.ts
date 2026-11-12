@@ -7,6 +7,9 @@ import type { DexStatus } from "@/lib/dex/state";
 
 export type OrbState = "idle" | "listening" | "thinking" | "speaking" | "muted" | "error";
 
+/** Alert level (D19): error = neon red; critical = red, blinking, alarm. */
+export type AlertLevel = "none" | "error" | "critical";
+
 export function orbStateOf(status: DexStatus, isMuted: boolean): OrbState {
   if (isMuted || status === "muted") return "muted";
   switch (status) {
@@ -45,7 +48,17 @@ export const motion = {
   wake: 0,
   /** Seconds since the theme mounted. */
   time: 0,
+  /** 0 = green, 1 = neon red. Eased over ~400 ms. */
+  alert: 0,
+  /** Critical alarm blink, 0..1 (1 Hz). 0 when not critical. */
+  alarm: 0,
 };
+
+let alertTarget: AlertLevel = "none";
+
+export function setAlertLevel(level: AlertLevel) {
+  alertTarget = level;
+}
 
 const ENERGY: Record<OrbState, number> = {
   idle: 0.15,
@@ -91,6 +104,11 @@ export function stepMotion(t: number, dt: number, rawLevel: number) {
   let energy = 0;
   for (const s of STATES) energy += ENERGY[s] * motion.w[s];
   motion.energy = energy + motion.level * 0.3;
+
+  const red = alertTarget === "none" ? 0 : 1;
+  motion.alert += (red - motion.alert) * k;
+  // Same 1 s cycle as the CSS klaxon overlay, so canvas and DOM blink together.
+  motion.alarm = alertTarget === "critical" ? 0.5 + 0.5 * Math.cos(t * Math.PI * 2) : 0;
 
   motion.toolTick = Math.max(0, motion.toolTick - dt / 0.3);
   motion.wake = Math.max(0, motion.wake - dt / 0.3);

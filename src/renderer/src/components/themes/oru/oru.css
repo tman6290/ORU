@@ -2,6 +2,19 @@
 @import "@fontsource-variable/oxanium";
 @import "@fontsource-variable/jetbrains-mono";
 
+/* Tokens are registered colours so they can animate: an alert swaps the
+   whole palette to neon red (same lightness and saturation, hue 357°) and the
+   change eases over 400 ms. Every colour in the theme reads these tokens. */
+@property --oru-bg { syntax: "<color>"; inherits: true; initial-value: #020503; }
+@property --oru-bg-raised { syntax: "<color>"; inherits: true; initial-value: #07120a; }
+@property --oru-primary { syntax: "<color>"; inherits: true; initial-value: #39ff14; }
+@property --oru-primary-dim { syntax: "<color>"; inherits: true; initial-value: #1e8f0e; }
+@property --oru-primary-faint { syntax: "<color>"; inherits: true; initial-value: #0c3a08; }
+@property --oru-text { syntax: "<color>"; inherits: true; initial-value: #d6ffd0; }
+@property --oru-text-muted { syntax: "<color>"; inherits: true; initial-value: #6faf68; }
+@property --oru-line { syntax: "<color>"; inherits: true; initial-value: #14401a; }
+@property --oru-well { syntax: "<color>"; inherits: true; initial-value: #041008; }
+
 [data-dex-theme="oru"] {
   /* ── ORU tokens (DESIGN.md "Colour") ─────────────────────────────────── */
   --oru-bg: #020503;
@@ -9,9 +22,11 @@
   --oru-primary: #39ff14;
   --oru-primary-dim: #1e8f0e;
   --oru-primary-faint: #0c3a08;
-  --oru-glow: rgba(57, 255, 20, 0.35);
   --oru-text: #d6ffd0;
   --oru-text-muted: #6faf68;
+  --oru-line: #14401a; /* borders */
+  --oru-well: #041008; /* control and input wells */
+  --oru-glow: color-mix(in srgb, var(--oru-primary) 35%, transparent);
   --oru-warn: #ffb000;
   --oru-danger: #ff3b3b;
 
@@ -25,20 +40,20 @@
   --popover-foreground: var(--oru-text);
   --primary: var(--oru-primary);
   --primary-foreground: var(--oru-bg);
-  --secondary: #0b1f0e;
+  --secondary: color-mix(in srgb, var(--oru-line) 55%, var(--oru-bg));
   --secondary-foreground: var(--oru-text);
-  --muted: #0b1f0e;
+  --muted: color-mix(in srgb, var(--oru-line) 55%, var(--oru-bg));
   --muted-foreground: var(--oru-text-muted);
-  --accent: #0f2a12;
+  --accent: color-mix(in srgb, var(--oru-line) 70%, var(--oru-bg));
   --accent-foreground: var(--oru-text);
   --destructive: var(--oru-danger);
-  --border: #14401a;
-  --input: #14401a;
+  --border: var(--oru-line);
+  --input: var(--oru-line);
   --ring: var(--oru-primary);
   --dex-glow: var(--oru-primary);
   --dex-active: var(--oru-primary);
   --dex-idle: var(--oru-primary-dim);
-  --dex-surface: #041008;
+  --dex-surface: var(--oru-well);
 
   --oru-font-display: "Oxanium Variable", "Segoe UI", sans-serif;
   --oru-font-mono: "JetBrains Mono Variable", Consolas, monospace;
@@ -46,6 +61,51 @@
   font-family: var(--oru-font-mono);
   background: var(--oru-bg);
   color: var(--oru-text);
+  transition:
+    --oru-bg 400ms ease,
+    --oru-bg-raised 400ms ease,
+    --oru-primary 400ms ease,
+    --oru-primary-dim 400ms ease,
+    --oru-primary-faint 400ms ease,
+    --oru-text 400ms ease,
+    --oru-text-muted 400ms ease,
+    --oru-line 400ms ease,
+    --oru-well 400ms ease;
+}
+
+/* Alert palette: neon red twins of every token (only the hue changes). */
+[data-dex-theme="oru"][data-alert="error"],
+[data-dex-theme="oru"][data-alert="critical"] {
+  --oru-bg: #050202;
+  --oru-bg-raised: #120708;
+  --oru-primary: #ff1420;
+  --oru-primary-dim: #8f0e14;
+  --oru-primary-faint: #3a080a;
+  --oru-text: #ffd0d2;
+  --oru-text-muted: #af686c;
+  --oru-line: #401416;
+  --oru-well: #100405;
+}
+
+/* Critical: the screen edge throbs red like a klaxon light (1 s cycle). */
+@keyframes oru-alarm {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.85; }
+}
+.oru-alarm-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 45%, color-mix(in srgb, var(--oru-primary) 45%, transparent) 100%);
+  box-shadow: inset 0 0 0 3px var(--oru-primary), inset 0 0 80px color-mix(in srgb, var(--oru-primary) 60%, transparent);
+  animation: oru-alarm 1s ease-in-out infinite;
+}
+@keyframes oru-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.25; }
+}
+.oru-blink {
+  animation: oru-blink 1s steps(1) infinite;
 }
 
 /* ── Type ───────────────────────────────────────────────────────────────── */
@@ -67,7 +127,7 @@
 .oru-panel {
   --cut: 14px;
   position: relative;
-  background: linear-gradient(180deg, rgba(7, 18, 10, 0.82), rgba(4, 12, 6, 0.72));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--oru-bg-raised) 82%, transparent), color-mix(in srgb, var(--oru-well) 72%, transparent));
   clip-path: polygon(
     var(--cut) 0,
     100% 0,
@@ -83,7 +143,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(160deg, rgba(57, 255, 20, 0.55), rgba(30, 143, 14, 0.18) 40%, rgba(57, 255, 20, 0.35));
+  background: linear-gradient(160deg, color-mix(in srgb, var(--oru-primary) 55%, transparent), color-mix(in srgb, var(--oru-primary-dim) 18%, transparent) 40%, color-mix(in srgb, var(--oru-primary) 35%, transparent));
   clip-path: inherit;
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
@@ -115,16 +175,16 @@
   width: 40px;
   height: 40px;
   color: var(--oru-text-muted);
-  border: 1px solid rgba(57, 255, 20, 0.25);
-  background: rgba(4, 16, 8, 0.75);
+  border: 1px solid color-mix(in srgb, var(--oru-primary) 25%, transparent);
+  background: color-mix(in srgb, var(--oru-well) 75%, transparent);
   clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
   transition: color 150ms ease, background 150ms ease, box-shadow 150ms ease;
 }
 .oru-control:hover,
 .oru-control[data-on="true"] {
   color: var(--oru-primary);
-  background: rgba(12, 58, 8, 0.6);
-  box-shadow: inset 0 0 12px rgba(57, 255, 20, 0.25);
+  background: color-mix(in srgb, var(--oru-primary-faint) 60%, transparent);
+  box-shadow: inset 0 0 12px color-mix(in srgb, var(--oru-primary) 25%, transparent);
 }
 .oru-control:focus-visible {
   outline: 1px solid var(--oru-primary);

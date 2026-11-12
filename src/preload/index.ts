@@ -16,6 +16,7 @@ import {
 import type { PermissionDecision } from "../main/agent/permissions";
 import type { ShellView } from "../main/shell";
 import type { SystemStats } from "../main/system/stats";
+import type { AlertInput, OruAlert } from "../main/alerts";
 import type {
   DeepPartial,
   OpenDexConfig,
@@ -245,6 +246,29 @@ const opendex = {
   /** One sample of live system numbers (CPU, RAM, GPU, network). Poll it. */
   getSystemStats(): Promise<SystemStats> {
     return ipcRenderer.invoke(IPC.systemStats);
+  },
+
+  // ── Alerts (D19) ─────────────────────────────────────────────────────────
+
+  /** Raise an alert: "error" turns ORU red; "critical" adds blinking and an alarm. */
+  raiseAlert(alert: AlertInput): void {
+    ipcRenderer.send(IPC.alertRaise, alert);
+  },
+
+  /** Acknowledge (dismiss) an alert by id. */
+  ackAlert(id: string): void {
+    ipcRenderer.send(IPC.alertAck, id);
+  },
+
+  getAlerts(): Promise<OruAlert[]> {
+    return ipcRenderer.invoke(IPC.alertsGet);
+  },
+
+  /** Subscribe to the active alert list. Returns an unsubscribe fn. */
+  onAlerts(handler: (alerts: OruAlert[]) => void): () => void {
+    const listener = (_e: IpcRendererEvent, alerts: OruAlert[]) => handler(alerts);
+    ipcRenderer.on(IPC.alertsChanged, listener);
+    return () => ipcRenderer.removeListener(IPC.alertsChanged, listener);
   },
 
   // ── Shell view (Windows desktop mode) ────────────────────────────────────

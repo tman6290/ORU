@@ -4,6 +4,7 @@ import { OrbRenderer } from "./orb-gl";
 import { getBudget, useFrame } from "./frame-clock";
 import { motion } from "./motion";
 import { OduGlyph } from "./odu";
+import { mix } from "./palette";
 
 // Glyphs that drift faintly inside the glass (Tofa's pick: orb surface (a)).
 // Fixed bytes so the layout is stable; positions are % of the orb box.
@@ -60,7 +61,7 @@ export function Orb({ size, isMuted }: { size: number; isMuted: boolean }) {
     if (r) {
       // Pixel ratio cap (DESIGN.md): 1.25 normally, 1 on battery.
       r.resize(lowPower ? 1 : 1.25);
-      r.render({ time, level: motion.level, w: motion.w, lowPower });
+      r.render({ time, level: motion.level, w: motion.w, lowPower, alert: motion.alert, alarm: motion.alarm });
     }
     // Inner glyphs: brighter and faster while thinking.
     const g = glyphRef.current;
@@ -72,12 +73,12 @@ export function Orb({ size, isMuted }: { size: number; isMuted: boolean }) {
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+      <canvas ref={canvasRef} data-oru="orb" className="absolute inset-0 h-full w-full" />
       {failed && (
         <div
           className="absolute inset-[20%] rounded-full"
           style={{
-            background: "radial-gradient(circle, rgba(57,255,20,0.35), rgba(57,255,20,0.05) 60%, transparent 70%)",
+            background: `radial-gradient(circle, ${mix("primary", 35)}, ${mix("primary", 5)} 60%, transparent 70%)`,
             boxShadow: "0 0 80px var(--oru-glow)",
           }}
         />
@@ -106,8 +107,8 @@ export function Orb({ size, isMuted }: { size: number; isMuted: boolean }) {
             style={{
               width: size * 0.16,
               height: size * 0.16,
-              borderColor: "rgba(214,255,208,0.35)",
-              background: "rgba(2,5,3,0.6)",
+              borderColor: mix("text", 35),
+              background: mix("bg", 60),
               color: "var(--oru-text)",
             }}
             title="Muted"

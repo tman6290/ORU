@@ -8,6 +8,7 @@ import { TextComposer } from "../shared/text-composer";
 import { OduGlyph, oduFromString } from "./odu";
 import type { OrbState } from "./motion";
 import { NET_HISTORY, type LiveStats } from "./use-system-stats";
+import { mix } from "./palette";
 
 // Every panel shows real data and has one job you can explain (D16):
 //   Top bar     who is running, what ORU is doing right now, the time
@@ -44,20 +45,29 @@ function useClock() {
   return now;
 }
 
-export function TopBar({ name, state }: { name: string; state: OrbState }) {
+export function TopBar({
+  name,
+  state,
+  alertSlot,
+}: {
+  name: string;
+  state: OrbState;
+  /** Shown in place of the status pill while an alert is active. */
+  alertSlot?: React.ReactNode;
+}) {
   const now = useClock();
   const tone =
-    state === "error" ? "var(--oru-danger)" : state === "muted" ? "var(--oru-text-muted)" : "var(--oru-primary)";
+    state === "muted" ? "var(--oru-text-muted)" : "var(--oru-primary)";
   return (
     <div className="pointer-events-none flex items-start justify-between px-8 pt-6">
-      <div className="flex items-center gap-3" title="ORU">
+      <div data-oru="brand" className="flex items-center gap-3" title="ORU">
         <div
           className="grid h-10 w-10 place-items-center"
           style={{
             color: "var(--oru-primary)",
-            border: "1px solid rgba(57,255,20,0.45)",
+            border: `1px solid ${mix("primary", 45)}`,
             transform: "rotate(45deg)",
-            boxShadow: "0 0 12px rgba(57,255,20,0.2)",
+            boxShadow: `0 0 12px ${mix("primary", 20)}`,
           }}
         >
           <div style={{ transform: "rotate(-45deg)" }}>
@@ -72,17 +82,19 @@ export function TopBar({ name, state }: { name: string; state: OrbState }) {
         </div>
       </div>
 
-      <div className="oru-panel flex items-center gap-3 !px-6 !py-2" title="What ORU is doing right now">
-        <span
-          className="h-2 w-2 rounded-full"
-          style={{ background: tone, boxShadow: `0 0 10px ${tone}` }}
-        />
-        <span className="oru-label" style={{ color: tone }}>
-          {STATUS_WORD[state]}
-        </span>
-      </div>
+      {alertSlot ?? (
+        <div data-oru="status" className="oru-panel flex items-center gap-3 !px-6 !py-2" title="What ORU is doing right now">
+          <span
+            className="h-2 w-2 rounded-full"
+            style={{ background: tone, boxShadow: `0 0 10px ${tone}` }}
+          />
+          <span className="oru-label" style={{ color: tone }}>
+            {STATUS_WORD[state]}
+          </span>
+        </div>
+      )}
 
-      <div className="text-right" title="Local time">
+      <div data-oru="clock" className="text-right" title="Local time">
         <div className="oru-value text-2xl" style={{ fontFamily: "var(--oru-font-display)" }}>
           {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
         </div>
@@ -162,7 +174,7 @@ export function SystemPanel({ live }: { live: LiveStats }) {
   const { stats, rxHistory, battery } = live;
   const gpu = stats?.gpu;
   return (
-    <div className="oru-panel w-[300px]">
+    <div data-oru="system" className="oru-panel w-[300px]">
       <div className="oru-panel-title">
         <span className="oru-label">System</span>
       </div>
@@ -213,7 +225,7 @@ export function TranscriptPanel({
 }) {
   const recent = turns.slice(-6);
   return (
-    <div className="oru-panel flex min-h-0 w-[340px] flex-col">
+    <div data-oru="transcript" className="oru-panel flex min-h-0 w-[340px] flex-col">
       <div className="oru-panel-title">
         <span className="oru-label">Transcript</span>
       </div>
@@ -227,7 +239,7 @@ export function TranscriptPanel({
                 <span className="oru-label !text-[10px] shrink-0 pt-0.5" style={{ color: t.role === "user" ? "var(--oru-text-muted)" : "var(--oru-primary)" }}>
                   {t.role === "user" ? "You" : "ORU"}
                 </span>
-                <span style={{ color: t.role === "user" ? "var(--oru-text)" : "rgba(214,255,208,0.82)" }}>
+                <span style={{ color: t.role === "user" ? "var(--oru-text)" : mix("text", 82) }}>
                   {t.content || "…"}
                 </span>
               </div>
@@ -250,7 +262,7 @@ export function TranscriptPanel({
 export function ActionsPanel({ invocations }: { invocations: ToolInvocation[] }) {
   const recent = invocations.slice(-5);
   return (
-    <div className="oru-panel w-[340px]">
+    <div data-oru="actions" className="oru-panel w-[340px]">
       <div className="oru-panel-title">
         <span className="oru-label">Actions</span>
       </div>
@@ -302,7 +314,7 @@ export function Controls({
   onSettings: () => void;
 }) {
   return (
-    <div className="flex gap-2">
+    <div data-oru="controls" className="flex gap-2">
       <button type="button" className="oru-control" data-on={typing} onClick={onType} title="Type a message">
         <Keyboard className="size-[18px]" />
       </button>
@@ -340,12 +352,12 @@ export function TypingPanel({
     else input?.blur();
   }, [open]);
   return (
-    <div ref={ref} className="oru-typing w-[min(640px,60vw)]" data-open={open} inert={!open}>
+    <div ref={ref} data-oru="typing" className="oru-typing w-[min(640px,60vw)]" data-open={open} inert={!open}>
       {/* Always mounted so it can slide; inert while closed. */}
       <TextComposer
         onSubmit={onSubmit}
         onClose={onClose}
-        className="!max-w-none border-[rgba(57,255,20,0.35)] !bg-[rgba(4,16,8,0.9)] shadow-[0_0_24px_rgba(57,255,20,0.12)]"
+        className="!max-w-none border-[color-mix(in_srgb,var(--oru-primary)_35%,transparent)] !bg-[color-mix(in_srgb,var(--oru-well)_90%,transparent)] shadow-[0_0_24px_color-mix(in_srgb,var(--oru-primary)_12%,transparent)]"
       />
     </div>
   );

@@ -137,6 +137,7 @@ export function MindLattice({ width }: { width: number }) {
 
   return (
     <svg
+      data-oru="lattice"
       viewBox={`0 0 ${W} ${H}`}
       width={width}
       height={(width * H) / W}

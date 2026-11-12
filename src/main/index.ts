@@ -66,6 +66,7 @@ import {
   type ShellView,
 } from "./shell";
 import { getSystemStats } from "./system/stats";
+import { clearAlert, initAlerts, listAlerts, raiseAlert, type AlertInput } from "./alerts";
 
 // Load a dev .env first; initConfig() then layers the user's saved config on
 // top (config values win; .env remains a fallback for unset secrets).
@@ -132,6 +133,9 @@ function createWindow() {
       // the OS throttles its timers + rAF to ~1fps, stalling wake-word polling,
       // the amplitude meter, and STT endpointing. Keep the voice loop full-speed.
       backgroundThrottling: false,
+      // ORU speaks and sounds alarms on its own (alerts, the boot greeting), not
+      // only after a click, so audio must not wait for a user gesture.
+      autoplayPolicy: "no-user-gesture-required",
     },
   });
 
@@ -781,6 +785,12 @@ function registerIpc() {
   ipcMain.handle(IPC.shellGetView, () => ({ active: isShellActive(), view: getView() }));
   ipcMain.handle(IPC.systemStats, () => getSystemStats());
 
+  ipcMain.on(IPC.alertRaise, (_event, alert: AlertInput) => {
+    raiseAlert(alert);
+  });
+  ipcMain.on(IPC.alertAck, (_event, id: string) => clearAlert(id));
+  ipcMain.handle(IPC.alertsGet, () => listAlerts());
+
   // Notch hover → grow/shrink the notch window.
   ipcMain.on(IPC.notchSetSize, (_event, size: { width: number; height: number }) => {
     setNotchSize(size?.width ?? NOTCH_SIZE.width, size?.height ?? NOTCH_SIZE.height);
@@ -946,6 +956,11 @@ app.whenReady().then(() => {
   // A leftover shell flag means the last run died with the taskbar hidden.
   recoverFromCrash();
   initShell({ getMainWindow: () => mainWindow, onViewChanged: onShellViewChanged });
+  initAlerts((alerts) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (!win.isDestroyed()) win.webContents.send(IPC.alertsChanged, alerts);
+    }
+  });
   applyLoginItem();
   registerIpc();
   createWindow();

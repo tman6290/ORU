@@ -2,6 +2,7 @@
 // Keys: F8 cycles orb states (built into the theme). T adds a transcript line,
 // A adds a tool action.
 import "./preview.css";
+import "./layout-check";
 
 const fakeStats = () => ({
   cpu: 10 + Math.random() * 25,
@@ -11,7 +12,29 @@ const fakeStats = () => ({
   net: { rxPerSec: Math.random() * 3 * 1024 ** 2, txPerSec: Math.random() * 300 * 1024 },
 });
 
+// Minimal stand-in for main's alert bus (src/main/alerts.ts).
+type FakeAlert = { id: string; level: string; title: string; speech?: string; source: string; at: number };
+let alerts: FakeAlert[] = [];
+const alertListeners = new Set<(a: FakeAlert[]) => void>();
+const emitAlerts = () => alertListeners.forEach((l) => l([...alerts]));
+
 (window as unknown as { opendex: unknown }).opendex = {
+  raiseAlert: (a: Omit<FakeAlert, "at" | "id"> & { id?: string }) => {
+    const id = a.id ?? String(Date.now());
+    const speech = a.speech ?? (a.level === "critical" ? `Warning! Warning! ${a.title}.` : `${a.title}.`);
+    alerts = [...alerts.filter((x) => x.id !== id), { ...a, id, speech, at: Date.now() }];
+    emitAlerts();
+    if (a.level === "error") setTimeout(() => { alerts = alerts.filter((x) => x.id !== id); emitAlerts(); }, 10_000);
+  },
+  ackAlert: (id: string) => {
+    alerts = alerts.filter((x) => x.id !== id);
+    emitAlerts();
+  },
+  getAlerts: async () => [...alerts],
+  onAlerts: (fn: (a: FakeAlert[]) => void) => {
+    alertListeners.add(fn);
+    return () => alertListeners.delete(fn);
+  },
   platform: "win32",
   getSystemStats: async () => fakeStats(),
   getShellView: async () => ({ active: true, view: "oru" }),

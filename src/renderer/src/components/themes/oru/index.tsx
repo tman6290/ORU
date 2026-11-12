@@ -4,7 +4,14 @@ import type { DexThemeDef, DexThemeProps } from "../types";
 import type { DexStatus } from "@/lib/dex/state";
 import { PTT_HINT } from "@/lib/hotkeys";
 import { setBudget, useFrame } from "./frame-clock";
-import { fireToolTick, orbStateOf, setOrbState, stepMotion, type OrbState } from "./motion";
+import {
+  fireToolTick,
+  orbStateOf,
+  setAlertLevel,
+  setOrbState,
+  stepMotion,
+  type OrbState,
+} from "./motion";
 import { Orb } from "./orb";
 import { OponRing } from "./ring";
 import { OrbitRings, Platform } from "./gears";
@@ -12,6 +19,8 @@ import { MindLattice } from "./lattice";
 import { GlyphStreams } from "./glyph-streams";
 import { ActionsPanel, Controls, SystemPanel, TopBar, TranscriptPanel, TypingPanel } from "./panels";
 import { useBattery, useSystemStats } from "./use-system-stats";
+import { mix } from "./palette";
+import { AlertBanner, alertLevelOf, useAlerts, useAlertVoice } from "./alerts";
 
 // The ORU theme (Phase 3, D16). Back to front:
 //   background grid → glyph streams → platform (gears) → mind lattice →
@@ -72,7 +81,8 @@ function useDocumentVisible() {
 
 // Debug: F8 cycles the orb through every state (with a synthetic voice level),
 // so each look can be checked before a model exists (Phase 6). F8 past the last
-// state, or Esc, returns to the real status.
+// state, or Esc, returns to the real status. F9 raises a test critical alert,
+// F10 a test error alert.
 const DEBUG_STATES: OrbState[] = ["idle", "listening", "thinking", "speaking", "muted", "error"];
 
 function useDebugState() {
@@ -86,6 +96,22 @@ function useDebugState() {
           return i < DEBUG_STATES.length ? DEBUG_STATES[i] : null;
         });
         fireToolTick();
+      } else if (e.key === "F9") {
+        e.preventDefault();
+        window.opendex.raiseAlert({
+          id: "debug-critical",
+          level: "critical",
+          title: "Test alarm: unknown device tried to connect",
+          source: "debug",
+        });
+      } else if (e.key === "F10") {
+        e.preventDefault();
+        window.opendex.raiseAlert({
+          id: "debug-error",
+          level: "error",
+          title: "Test error: I couldn't reach the language model",
+          source: "debug",
+        });
       } else if (e.key === "Escape") {
         setDebug(null);
       }
@@ -111,6 +137,9 @@ function fakeLevel(t: number) {
   const syll = Math.max(0, Math.sin(t * 25)) * (0.5 + 0.5 * Math.sin(t * 3.1));
   return 0.15 + 0.7 * syll * (Math.sin(t * 0.9) > -0.6 ? 1 : 0.1);
 }
+
+/** Panel column widths (px), shared by the panels and the stage geometry. */
+const PANEL = { margin: 32, left: 300, right: 340 };
 
 function OruTheme(props: DexThemeProps) {
   const {
@@ -155,6 +184,12 @@ function OruTheme(props: DexThemeProps) {
   const debugRef = useRef(debug);
   debugRef.current = debug;
   useEffect(() => setOrbState(state), [state]);
+
+  // ── Alerts (D19): red for errors; red + blink + klaxon for critical.
+  const alerts = useAlerts();
+  const alertLevel = alertLevelOf(alerts, state === "error");
+  useEffect(() => setAlertLevel(alertLevel), [alertLevel]);
+  useAlertVoice(alerts, isMuted);
   useFrame((t, dt) => {
     const d = debugRef.current;
     const level = d === "speaking" || d === "listening" ? fakeLevel(t) : d ? 0 : ampRef.current();
@@ -182,12 +217,27 @@ function OruTheme(props: DexThemeProps) {
     [onSubmitText],
   );
 
-  // ── Geometry: everything scales from the orb size.
-  const orb = Math.round(Math.min(vp.h * 0.46, vp.w * 0.3));
+  // ── Geometry. The centre stage fits the space the panels leave free, so
+  // nothing overlaps (check with oruLayoutCheck() in `pnpm preview:oru`).
+  // Measured spans, in orb sizes: ring width 1.64; lattice top 0.88 above the
+  // orb centre; platform bottom 0.92 below it.
+  const GAP = 24;
+  const leftEdge = PANEL.margin + PANEL.left + GAP;
+  const rightEdge = vp.w - PANEL.margin - PANEL.right - GAP;
+  const stageX = Math.round((leftEdge + rightEdge) / 2);
+  const stageTop = 96; // below the top bar (and the taller alert banner)
+  const stageBottom = vp.h - 104; // above the typing panel and controls
+  const orb = Math.max(
+    160,
+    Math.round(
+      Math.min((rightEdge - leftEdge) / 1.64, (stageBottom - stageTop) / 1.8, vp.h * 0.46),
+    ),
+  );
   const ringSize = Math.round(orb * 1.62);
-  const orbCenterY = Math.round(vp.h * 0.52);
+  const slack = stageBottom - stageTop - 1.8 * orb;
+  const orbCenterY = Math.round(stageTop + 0.88 * orb + Math.max(0, slack) / 2);
   const orbCenter = useRef({ x: 0, y: 0 });
-  orbCenter.current = { x: vp.w / 2, y: orbCenterY };
+  orbCenter.current = { x: stageX, y: orbCenterY };
   const getOrbCenter = useCallback(() => orbCenter.current, []);
 
   const orbNode = (
@@ -200,6 +250,7 @@ function OruTheme(props: DexThemeProps) {
   return (
     <div
       data-dex-theme="oru"
+      data-alert={alertLevel}
       className="relative flex flex-1 select-none overflow-hidden"
       style={{ minHeight: "100vh" }}
     >
@@ -208,7 +259,7 @@ function OruTheme(props: DexThemeProps) {
         className="pointer-events-none absolute inset-0"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(12,58,8,0.55) 1px, transparent 1px), linear-gradient(90deg, rgba(12,58,8,0.55) 1px, transparent 1px)",
+            `linear-gradient(${mix("primary-faint", 55)} 1px, transparent 1px), linear-gradient(90deg, ${mix("primary-faint", 55)} 1px, transparent 1px)`,
           backgroundSize: "56px 56px",
           maskImage: "radial-gradient(ellipse at 50% 52%, black 20%, transparent 75%)",
           opacity: 0.5,
@@ -216,27 +267,27 @@ function OruTheme(props: DexThemeProps) {
       />
       <div
         className="pointer-events-none absolute inset-0"
-        style={{ background: "radial-gradient(ellipse at 50% 52%, rgba(57,255,20,0.07), transparent 55%)" }}
+        style={{ background: `radial-gradient(ellipse at 50% 52%, ${mix("primary", 7)}, transparent 55%)` }}
       />
 
       <GlyphStreams orbCenter={getOrbCenter} />
 
       {/* Centre stage */}
       <div
-        className="pointer-events-none absolute left-1/2 -translate-x-1/2"
-        style={{ top: orbCenterY + orb * 0.42, zIndex: 1 }}
+        className="pointer-events-none absolute -translate-x-1/2"
+        style={{ left: stageX, top: orbCenterY + orb * 0.42, zIndex: 1 }}
       >
         <Platform width={ringSize * 0.95} />
       </div>
       <div
-        className="pointer-events-none absolute left-1/2 -translate-x-1/2"
-        style={{ top: orbCenterY - orb * 0.42 - ringSize * 0.3, zIndex: 1 }}
+        className="pointer-events-none absolute -translate-x-1/2"
+        style={{ left: stageX, top: orbCenterY - orb * 0.46 - ringSize * 0.3, zIndex: 1 }}
       >
         <MindLattice width={ringSize * 1.0} />
       </div>
       <div
-        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{ top: orbCenterY, width: ringSize, height: ringSize, zIndex: 2 }}
+        className="absolute -translate-x-1/2 -translate-y-1/2"
+        style={{ left: stageX, top: orbCenterY, width: ringSize, height: ringSize, zIndex: 2 }}
       >
         <OponRing size={ringSize} />
         <div className="absolute inset-0 grid place-items-center" style={{ zIndex: 2 }}>
@@ -257,13 +308,17 @@ function OruTheme(props: DexThemeProps) {
 
       {/* HUD */}
       <div className="absolute inset-x-0 top-0" style={{ zIndex: 5 }}>
-        <TopBar name={name} state={state} />
+        <TopBar
+          name={name}
+          state={state}
+          alertSlot={alerts.length ? <AlertBanner alerts={alerts} /> : undefined}
+        />
       </div>
       <div className="absolute left-8 top-[112px]" style={{ zIndex: 5 }}>
         <SystemPanel live={live} />
       </div>
       <div
-        className="absolute right-8 top-[112px] flex flex-col gap-4"
+        className="absolute right-8 top-[112px] flex flex-col gap-4 overflow-hidden"
         style={{ zIndex: 5, maxHeight: "calc(100vh - 210px)" }}
       >
         <TranscriptPanel turns={transcript} liveCaption={liveCaption} wakeWord={wakeWord} />
@@ -275,6 +330,7 @@ function OruTheme(props: DexThemeProps) {
         )}
       </div>
 
+      {alertLevel === "critical" && <div className="oru-alarm-overlay" style={{ zIndex: 7 }} />}
       {debug && (
         <div className="oru-label absolute bottom-24 left-8 !text-[var(--oru-warn)]" style={{ zIndex: 6 }}>
           Debug: {debug} · <DebugFps /> fps · F8 next · Esc exit

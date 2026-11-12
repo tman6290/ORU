@@ -17,6 +17,8 @@ uniform float uLevel;
 uniform vec4 uW;   // idle, listening, thinking, speaking
 uniform vec2 uW2;  // muted, error
 uniform float uLow; // 1 on battery: no glow
+uniform float uAlert; // 0 green .. 1 neon red (hue only)
+uniform float uAlarm; // critical blink 0..1
 out vec4 outColor;
 
 // Compact 3D value noise + fbm.
@@ -57,10 +59,14 @@ void main() {
   float R = 0.6 * (1.0 + breath + disp + uLevel * (0.07 * speak + 0.03 * listen) - 0.04 * muted);
 
   vec3 green = vec3(0.224, 1.0, 0.078);      // --oru-primary
-  vec3 warn = vec3(1.0, 0.69, 0.0);          // --oru-warn
-  float flick = step(0.45, fract(t * 9.0));
-  vec3 base = mix(green, warn, err * flick);
-  float bright = 0.75 * idle + 1.05 * listen + 1.0 * think + 1.0 * speak + 0.32 * muted + 0.9 * err;
+  vec3 red = vec3(1.0, 0.078, 0.125);        // its neon-red twin (D19)
+  // Keep full brightness through the blend so only the hue moves.
+  vec3 base = mix(green, red, uAlert);
+  base /= max(base.r, max(base.g, base.b));
+  // Error: a brief flicker; critical alarm: a 1 Hz throb.
+  float flick = 1.0 - 0.5 * err * step(0.5, fract(t * 9.0));
+  float bright = (0.75 * idle + 1.05 * listen + 1.0 * think + 1.0 * speak + 0.32 * muted + 0.9 * err)
+               * flick * (1.0 + 0.6 * uAlarm);
 
   vec3 col = vec3(0.0);
   if (r < R) {
@@ -99,6 +105,7 @@ uniform vec4 uW;
 uniform vec2 uW2;
 uniform float uAspect;
 uniform float uScale;
+uniform float uAlarm;
 out float vAlpha;
 void main() {
   float think = uW.z, speak = uW.w, listen = uW.y;
@@ -115,18 +122,21 @@ void main() {
   gl_Position = vec4(p.x * persp / uAspect, p.y * persp, 0.0, 1.0);
   // Back half sits behind the glass: fainter.
   vAlpha = (p.z > 0.0 ? 0.95 : 0.35) * (0.6 + 0.4 * (think + speak + listen)) * (1.0 - 0.7 * uW2.x);
-  gl_PointSize = uScale * persp * (1.0 + think * 0.5);
+  gl_PointSize = uScale * persp * (1.0 + think * 0.5 + uAlarm * 0.4);
 }`;
 
 const POINTS_FS = `#version 300 es
 precision mediump float;
 in float vAlpha;
+uniform float uAlert;
 out vec4 outColor;
 void main() {
   vec2 d = gl_PointCoord - 0.5;
   float f = smoothstep(0.5, 0.0, length(d));
   float a = f * vAlpha;
-  outColor = vec4(vec3(0.224, 1.0, 0.078) * a, a);
+  vec3 c = mix(vec3(0.224, 1.0, 0.078), vec3(1.0, 0.078, 0.125), uAlert);
+  c /= max(c.r, max(c.g, c.b));
+  outColor = vec4(c * a, a);
 }`;
 
 export interface OrbFrame {
@@ -134,6 +144,8 @@ export interface OrbFrame {
   level: number;
   w: { idle: number; listening: number; thinking: number; speaking: number; muted: number; error: number };
   lowPower: boolean;
+  alert: number;
+  alarm: number;
 }
 
 function compile(gl: WebGL2RenderingContext, type: number, src: string): WebGLShader {
@@ -217,10 +229,10 @@ export class OrbRenderer {
     gl.vertexAttribPointer(aP, 3, gl.FLOAT, false, 0, 0);
     gl.bindVertexArray(null);
 
-    for (const n of ["uRes", "uTime", "uLevel", "uW", "uW2", "uLow"]) {
+    for (const n of ["uRes", "uTime", "uLevel", "uW", "uW2", "uLow", "uAlert", "uAlarm"]) {
       this.u[n] = gl.getUniformLocation(this.sphere, n);
     }
-    for (const n of ["uTime", "uLevel", "uW", "uW2", "uAspect", "uScale"]) {
+    for (const n of ["uTime", "uLevel", "uW", "uW2", "uAspect", "uScale", "uAlert", "uAlarm"]) {
       this.pu[n] = gl.getUniformLocation(this.points, n);
     }
     gl.enable(gl.BLEND);
@@ -252,6 +264,8 @@ export class OrbRenderer {
     gl.uniform4f(this.u.uW, ...w4);
     gl.uniform2f(this.u.uW2, f.w.muted, f.w.error);
     gl.uniform1f(this.u.uLow, f.lowPower ? 1 : 0);
+    gl.uniform1f(this.u.uAlert, f.alert);
+    gl.uniform1f(this.u.uAlarm, f.alarm);
     gl.bindVertexArray(this.quadVao);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -262,6 +276,8 @@ export class OrbRenderer {
     gl.uniform2f(this.pu.uW2, f.w.muted, f.w.error);
     gl.uniform1f(this.pu.uAspect, canvas.width / canvas.height);
     gl.uniform1f(this.pu.uScale, Math.max(2, canvas.height / 170));
+    gl.uniform1f(this.pu.uAlert, f.alert);
+    gl.uniform1f(this.pu.uAlarm, f.alarm);
     gl.bindVertexArray(this.pointsVao);
     gl.drawArrays(gl.POINTS, 0, f.lowPower ? this.pointCount.low : this.pointCount.full);
     gl.bindVertexArray(null);

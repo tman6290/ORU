@@ -1,6 +1,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "./frame-clock";
 import { motion } from "./motion";
+import { mix } from "./palette";
 
 // Gears and rings (DESIGN.md): concentric mechanisms at different depths and
 // speeds. Two groups:
@@ -113,7 +114,7 @@ export function Platform({ width }: { width: number }) {
           bottom: "45%",
           width: width * 0.1,
           height: width * 0.4,
-          background: "linear-gradient(to top, rgba(57,255,20,0.35), transparent)",
+          background: `linear-gradient(to top, ${mix("primary", 35)}, transparent)`,
           filter: "blur(6px)",
         }}
       />
@@ -126,7 +127,7 @@ export function Platform({ width }: { width: number }) {
           filter: "drop-shadow(0 0 4px var(--oru-glow))",
         }}
       >
-        {svg}
+        <div data-oru="platform" className="h-full w-full">{svg}</div>
       </div>
     </div>
   );
