@@ -4,14 +4,14 @@ Claude Code: read this file at the start of each session and update it at the en
 
 ## Current state
 
-- Phase in progress: 2 (built, waiting for Tofa's manual tests). Phase 1 done.
+- Phase in progress: 3 (design pass). Phases 1 and 2 done.
 - App runs on Tofa's machine: yes (pnpm dev opens a window titled ORU; onboarding runs)
 - Last session: 2026-11-12, Phase 2
 
 ## Phases
 
 - [x] 1. Baseline: run the fork on Windows, remove analytics and auto-update, rebrand to ORU
-- [ ] 2. Shell: fullscreen desktop layer, hidden taskbar, Windows view toggle, safe restore
+- [x] 2. Shell: fullscreen desktop layer, hidden taskbar, Windows view toggle, safe restore
 - [ ] 3. Face: the ORU theme (orb, mind and gear visuals, Odù glyphs, live system panels)
 - [ ] 4. Voice out: local neural voice, real audio driving the orb, spoken greeting
 - [ ] 5. Voice in: push-to-talk, local Whisper on GPU, "Hey Oru" wake word
@@ -36,7 +36,7 @@ Done:
 - Auto notch mode is off in shell mode. Closing the ORU window (Alt+F4) goes to Windows view. ORU is hidden from Alt+Tab and the taskbar.
 - koffi added to `asarUnpack` for the Phase 10 installer.
 Not done:
-- Tofa's manual tests below. Phase 2 stays unchecked until they pass.
+- Nothing. Tofa ran the manual tests below on 2026-11-12 and all passed (test 8 waits for a model, Phase 6).
 - Windows view shows only the tray icon, no compact bar (the default proposed in the plan; Tofa did not ask for the bar).
 Decisions: D13 (window above desktop), D14 (taskbar auto-hide), D15 (koffi).
 Manual tests for Tofa:
