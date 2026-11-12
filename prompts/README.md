@@ -35,6 +35,21 @@ One prompt per phase. Run them in order, one Claude Code session each.
 | `90-resume.md` | Continue a phase in a fresh session |
 | `91-bugfix.md` | Fix one bug with a small context |
 
+## Running a task with Qwen instead
+
+Claude says at the start of each phase whether it should build it or Qwen should. For a Qwen task:
+
+1. In Ollama, give Qwen a large context window: `num_ctx` of 32768 or more. The default is too small for a coding agent.
+2. Open Oh My Pi in the ORU folder and send:
+
+   ```
+   Read docs/QWEN.md, then docs/PROGRESS.md, then <the task or prompt file>. Plan first and wait for my go before you edit files.
+   ```
+
+3. Next Claude session: say "Qwen did <task>". Claude reviews the commits before building on them.
+
+Qwen cannot see images, so anything that depends on `reference/` stays with Claude.
+
 ## Keeping sessions fast and cheap
 
 - **One phase, one session.** Start a new session for each phase. `docs/PROGRESS.md` carries the state across, so a fresh session loses nothing.

@@ -10,7 +10,8 @@ Target machine: Lenovo Legion 5 Pro, Windows 11, 32 GB RAM, NVIDIA RTX 5070 lapt
 2. Read the prompt file Tofa names in `prompts/`. Read the docs that prompt lists and stop there.
 3. Plan before you edit. Show the plan and wait for Tofa's approval.
 4. Build in small commits. Run `pnpm typecheck` before each commit.
-5. Close out each session: update `docs/PROGRESS.md` (checklist, session log, open questions), commit, and give Tofa the manual test list from the prompt.
+5. Before each phase, say whether Claude or Qwen (Tofa's local Qwen3 Coder 30B in Oh My Pi) should build it, and why. Qwen's brief is `docs/QWEN.md`; keep it current when a rule or a lesson changes. Review Qwen's commits before building on them.
+6. Close out each session: update `docs/PROGRESS.md` (checklist, session log, open questions), commit, and give Tofa the manual test list from the prompt.
 
 ## Commands
 
