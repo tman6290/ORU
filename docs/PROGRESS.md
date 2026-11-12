@@ -46,6 +46,14 @@ Manual tests for Tofa:
 5. Mute button: the orb dims with a muted mark. Windows-view button: switches to Windows. Gear: opens Settings.
 6. Frame rate: press F8 once; the debug label shows fps (target 60). Click into another app and read it again (target 30). Esc to leave debug.
 7. Idle GPU: Task Manager → Details or Processes, GPU column for ORU (Electron) at rest. Target under 15%.
+8. Press F10: the whole interface turns neon red for 10 s with an "Error" banner, and ORU says the test error (Windows voice for now). Dismiss clears it.
+9. Press F9: red, the screen edge throbs, WARNING blinks, a two-tone alarm sounds and ORU says "Warning! Warning! …". Acknowledge stops all of it.
+Follow-up after Tofa's review (same day):
+- Overlaps fixed: at 1280x800 the ring hit the System and Actions panels and the open typing panel covered the platform. The centre stage now sizes from the free space between the panels. `oruLayoutCheck()` in `pnpm preview:oru` reports no overlaps or cut-offs at 1280x800 and 1920x1080, with the typing panel open and with an alert banner.
+- Alerts (D19): bus in `src/main/alerts.ts`, IPC `alert:raise`, `alert:ack`, `alerts:get`, `alerts:changed`. Theme `alerts.tsx`: neon-red palette swap for errors, klaxon overlay + blinking banner + Web Audio alarm for critical, speech via the Windows voice until Phase 4. Debug: F9 critical, F10 error.
+- Every theme colour now comes from registered CSS tokens (`oru.css`, `palette.ts`), so the red swap animates over 400 ms.
+- Main window `autoplayPolicy: no-user-gesture-required`, so alarms and the Phase 4 greeting play without a click.
+- Phase 4 prompt gains "alerts in ORU's voice"; Phase 7 gains a security monitor that raises critical alerts.
 Next step: Tofa runs the tests and reports the two numbers; then Phase 4 (`prompts/04-voice-out.md`).
 
 ### 2026-11-12, Phase 2
@@ -106,6 +114,9 @@ Next step:
 ```
 
 ## Open questions for Tofa
+
+- Attacks: which sources should count as critical? Candidates in `prompts/07-skills.md` task 8 (Defender detections, failed sign-ins, new device on the network, blocked inbound connections).
+- When a critical alert fires while apps cover ORU or in Windows view, should ORU jump to the front? Today the alarm and voice play, but the red screen stays behind your apps.
 
 - Windows view shows only the tray icon. Should the compact bar stay visible there as a "listening" indicator?
 - In ORU view, the summon hotkey (Ctrl+Alt+Space) focuses ORU's type field but does not raise ORU above open apps. Phase 7's typing panel may be the better home for typing from anywhere.

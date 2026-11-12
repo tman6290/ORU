@@ -21,7 +21,8 @@ ORU speaks in a natural voice that runs on the laptop, the orb moves with the re
 4. **Pronunciation table.** A small map applied before synthesis: "ORU" as "OH-roo", "Ọ̀rúnmìlà" as "aw-ROON-mee-lah", plus entries Tofa adds. Editable in Settings.
 5. **Real amplitude.** Route TTS playback through an `AnalyserNode` and return its level from `getAmplitude()` while speaking in pipeline mode, replacing the synthetic envelope. Tune smoothing so the orb tracks syllables.
 6. **Greeting.** On launch, after the interface is up, ORU greets Tofa by name with a line that fits the time of day. Use templates so the greeting needs no model call and lands fast. Add `assistant.userName` to the config (default `Tofa`) and a setting to turn the greeting off.
-7. **Autoplay.** Set Electron's autoplay policy so the greeting plays without a click, and remove the audio-unlock overlay where it is no longer needed.
+7. **Autoplay.** Set Electron's autoplay policy so the greeting plays without a click, and remove the audio-unlock overlay where it is no longer needed. (The policy is already set on the main window since Phase 3; check the overlay.)
+8. **Alerts in ORU's voice.** `components/themes/oru/alerts.tsx` speaks alerts through the browser's built-in voice as a stop-gap. Route alert speech through the new engine and the existing TTS queue instead, so an alert interrupts or follows what ORU is saying cleanly. Critical alerts speak even when muted (DESIGN.md "Alerts").
 
 ## Constraints
 

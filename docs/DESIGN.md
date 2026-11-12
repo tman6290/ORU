@@ -17,7 +17,9 @@ Tofa is the art director. His images in `reference/` set the base for layout and
 | `--oru-warn` | `#FFB000` | Permission prompts, warnings |
 | `--oru-danger` | `#FF3B3B` | Errors, destructive actions |
 
-Green carries the interface. Amber and red appear for warnings and errors and nowhere else. Define the tokens once in the theme's stylesheet.
+Green carries the interface. Amber appears for permission prompts. Define the tokens once in the theme's stylesheet.
+
+**Alert palette.** During an alert the whole interface turns neon red: every token swaps to its red twin with the same lightness, saturation and opacity, only the hue changes (to 357°). `--oru-primary` `#39FF14` becomes `#FF1420`. The change eases over 400 ms. See "Alerts" below and D19.
 
 ## Type
 
@@ -37,7 +39,7 @@ The orb is ORU's being. It sits at the centre and is the brightest object on scr
 | Thinking | Inner structure spins up, glyphs stream inward |
 | Speaking | Radius, glow and surface displacement follow the real TTS audio level |
 | Muted | Dimmed with a clear muted mark |
-| Error | Brief amber or red flicker, then back to idle |
+| Error | Brief flicker in neon red (the whole interface is red during an alert), then back to idle |
 
 Build it with shaders (noise-displaced sphere, fresnel rim, particle shell) so it looks volumetric. State changes blend over 300 to 500 ms. The speaking response must track syllables, so smooth the audio level a little and no more.
 
@@ -51,6 +53,17 @@ Build it with shaders (noise-displaced sphere, fresnel rim, particle shell) so i
 - **Tool cards.** A card per action ORU takes, using OpenDex's tool view system.
 - **Typing panel.** A text box that slides in from the bottom on the Type button, the summon hotkey, or the voice command.
 - **Controls.** Type, mute, Windows view and settings. Small, in a corner, visible at a glance.
+
+## Alerts
+
+Two levels (D19). Anything can raise one through the alert bus in `src/main/alerts.ts`.
+
+| Level | When | What Tofa sees and hears |
+| --- | --- | --- |
+| Error | Something failed: the model is unreachable, a skill errored, voice input broke | The interface turns neon red. ORU says what went wrong in a sentence. A banner replaces the status pill. Clears after 10 s or on Dismiss. |
+| Critical | A serious issue: an attack or intrusion, a security product reporting a threat, a system fault Tofa must act on | Red, plus the screen edge throbbing like a klaxon light, a blinking WARNING banner, and a two-tone alarm. ORU says "Warning! Warning! <issue>" and repeats it every 20 s until Tofa presses Acknowledge. Speaks even when muted. |
+
+The alarm is synthesised with Web Audio (original, no samples). Its volume joins the sound settings in Phase 10.
 
 ## Odù glyphs
 

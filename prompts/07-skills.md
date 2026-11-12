@@ -21,7 +21,8 @@ ORU does things on the laptop: opens apps and workspaces, manages windows, contr
 5. **`windows` skill.** List open windows, focus one by app name, minimise, close, and snap left, right or full. Check what `@nut-tree-fork/nut-js` already offers before adding anything. Closing a window is a sensitive tool.
 6. **`system` skill.** Volume, brightness, lock, sleep, and battery and network status. Lock and sleep are sensitive tools.
 7. **Tool views.** Give each new tool a label and a compact card through the existing `view.tsx` mechanism, styled with the ORU tokens.
-8. **Update the eval.** Add the new tools to `scripts/eval-brain.ts` and re-run it. Report any drop in accuracy.
+8. **Security monitor.** A main-process watcher that raises critical alerts through `src/main/alerts.ts` (DESIGN.md "Alerts"). Agree the sources with Tofa first; candidates: Microsoft Defender threat detections and tamper events from the Windows event log, repeated failed sign-ins, a new device on the home network, and firewall blocks on inbound connections. Normal failures from skills raise error alerts. Every source must be something ORU can read without admin rights, or ask before elevating.
+9. **Update the eval.** Add the new tools to `scripts/eval-brain.ts` and re-run it. Report any drop in accuracy.
 
 ## Constraints
 

@@ -61,3 +61,6 @@ The orb is a WebGL2 fragment shader (noise-displaced sphere, fresnel rim, glow) 
 
 ## D18. Fonts (2026-11-12)
 Oxanium (display, labels) and JetBrains Mono (data, transcript), both OFL-1.1, bundled through `@fontsource-variable` so ORU works offline.
+
+## D19. Alerts: neon red, and a klaxon for critical (2026-11-12)
+Tofa's rule: errors turn the whole interface neon red (same lightness and saturation, only the hue changes) and ORU says what went wrong; critical issues such as attacks also blink, sound an alarm and ORU repeats "Warning! Warning! …" until acknowledged. Alerts flow through one bus in main (`src/main/alerts.ts`, IPC `alert:raise` / `alerts:changed`). Every theme colour is a registered CSS token so the swap animates. Speech uses the built-in Windows voice until Phase 4.
