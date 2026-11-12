@@ -65,6 +65,7 @@ import {
   toggleView,
   type ShellView,
 } from "./shell";
+import { getSystemStats } from "./system/stats";
 
 // Load a dev .env first; initConfig() then layers the user's saved config on
 // top (config values win; .env remains a fallback for unset secrets).
@@ -778,6 +779,7 @@ function registerIpc() {
     else if (next === "windows") enterWindowsView();
   });
   ipcMain.handle(IPC.shellGetView, () => ({ active: isShellActive(), view: getView() }));
+  ipcMain.handle(IPC.systemStats, () => getSystemStats());
 
   // Notch hover → grow/shrink the notch window.
   ipcMain.on(IPC.notchSetSize, (_event, size: { width: number; height: number }) => {

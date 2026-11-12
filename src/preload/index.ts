@@ -15,6 +15,7 @@ import {
 } from "../main/ipc/channels";
 import type { PermissionDecision } from "../main/agent/permissions";
 import type { ShellView } from "../main/shell";
+import type { SystemStats } from "../main/system/stats";
 import type {
   DeepPartial,
   OpenDexConfig,
@@ -239,6 +240,11 @@ const opendex = {
    *  receive keystrokes (it's shown unfocused via showInactive). */
   focusNotch(): void {
     ipcRenderer.send(IPC.notchFocus);
+  },
+
+  /** One sample of live system numbers (CPU, RAM, GPU, network). Poll it. */
+  getSystemStats(): Promise<SystemStats> {
+    return ipcRenderer.invoke(IPC.systemStats);
   },
 
   // ── Shell view (Windows desktop mode) ────────────────────────────────────

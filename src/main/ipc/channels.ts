@@ -62,6 +62,9 @@ export const IPC = {
   shellSetView: "shell:set-view",
   shellGetView: "shell:get-view",
   shellView: "shell:view",
+  // renderer → main: one sample of live system numbers (CPU, RAM, GPU, network)
+  // for the ORU theme's System panel. The renderer polls it; main never pushes.
+  systemStats: "system:stats",
   // main → renderer event: the summon hotkey brought the window forward
   windowSummoned: "window:summoned",
   // notch renderer → main: set the notch window size (px). The renderer measures

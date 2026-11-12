@@ -11,9 +11,12 @@ import { cn } from "@/lib/utils";
 // tokens, and is always escapable — via the X button or the Esc key.
 export function TextComposer({
   onSubmit,
+  onClose,
   className = "",
 }: {
   onSubmit: (text: string) => void;
+  /** Esc handler. Without one, Esc just leaves the field. */
+  onClose?: () => void;
   className?: string;
 }) {
   const [value, setValue] = useState("");
@@ -57,7 +60,11 @@ export function TextComposer({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Escape") close();
+          // Was a bare close(), i.e. window.close(): Esc closed the whole window.
+          if (e.key === "Escape") {
+            if (onClose) onClose();
+            else inputRef.current?.blur();
+          }
         }}
         placeholder="Type a message…"
         className="h-8 min-w-0 flex-1 border-0 bg-transparent px-1 shadow-none focus-visible:ring-0"
