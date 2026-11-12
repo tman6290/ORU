@@ -1,0 +1,4 @@
+/* The app's styles, plus a scan of the renderer source: the preview's Vite root
+   is this folder, so Tailwind would otherwise find no classes to generate. */
+@import "../../src/renderer/src/styles/globals.css";
+@source "../../src/renderer/src";

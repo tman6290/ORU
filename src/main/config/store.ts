@@ -39,13 +39,23 @@ function encryptionAvailable(): boolean {
   }
 }
 
+// One-way upgrades for config files written by older builds.
+// v1 → v2 (Phase 3): switch to the new ORU theme once; Tofa can pick another after.
+function migrateConfig(raw: DeepPartial<OpenDexConfig>): DeepPartial<OpenDexConfig> {
+  const version = typeof raw.version === "number" ? raw.version : 1;
+  if (version < 2) {
+    return { ...raw, version: 2, appearance: { ...raw.appearance, theme: "oru" } };
+  }
+  return raw;
+}
+
 function loadConfigFile(): OpenDexConfig {
   ensurePaths();
   if (!existsSync(configPath)) return structuredClone(DEFAULT_CONFIG);
   try {
     const raw = JSON.parse(readFileSync(configPath, "utf8")) as DeepPartial<OpenDexConfig>;
     // Merge over defaults so new fields added in later versions are filled in.
-    return mergeConfig(DEFAULT_CONFIG, raw);
+    return mergeConfig(DEFAULT_CONFIG, migrateConfig(raw));
   } catch (err) {
     console.error("[opendex config] failed to read config.json, using defaults", err);
     return structuredClone(DEFAULT_CONFIG);

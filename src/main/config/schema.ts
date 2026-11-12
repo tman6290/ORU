@@ -35,7 +35,8 @@ export type SecretName =
   | "XAI_API_KEY";
 
 export interface OpenDexConfig {
-  version: 1;
+  /** Config format version; `migrateConfig` in store.ts upgrades older files. */
+  version: number;
   assistant: {
     /** Spoken persona name, used in the system prompt. */
     name: string;
@@ -141,7 +142,7 @@ export interface PublicConfig {
 }
 
 export const DEFAULT_CONFIG: OpenDexConfig = {
-  version: 1,
+  version: 2,
   assistant: { name: "ORU", wakeWord: "oru", userGender: "unspecified", persona: "" },
   // Defaults to the gateway so configs written before the provider field
   // (which only had `llm.model`) keep working after upgrade. First-run
@@ -172,7 +173,7 @@ export const DEFAULT_CONFIG: OpenDexConfig = {
     sttProvider: "whisper-local",
     whisperModel: "Xenova/whisper-base.en",
   },
-  appearance: { theme: "editorial", showToolActivity: true },
+  appearance: { theme: "oru", showToolActivity: true },
   // `Alt+Space` reads as ⌥Space on macOS (low-conflict). On Windows Alt+Space
   // opens the system window menu, so Windows defaults to Ctrl+Alt+Space (D11).
   hotkeys: {

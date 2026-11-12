@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "oru-preview",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["preview:oru"],
+      "port": 5174
+    }
+  ]
+}

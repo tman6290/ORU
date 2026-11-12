@@ -12,7 +12,7 @@ export const DEX_THEMES: DexThemeDef[] = Object.values(modules)
   .map((m) => m.default)
   .sort((a, b) => (a.order ?? 99) - (b.order ?? 99) || a.label.localeCompare(b.label));
 
-const DEFAULT_THEME_ID = "jarvis";
+const DEFAULT_THEME_ID = "oru";
 
 export function getDexTheme(id: string | undefined): DexThemeDef {
   return (
