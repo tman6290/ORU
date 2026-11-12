@@ -4,9 +4,9 @@ Claude Code: read this file at the start of each session and update it at the en
 
 ## Current state
 
-- Phase in progress: 2 (not started). Phase 1 done.
+- Phase in progress: 2 (built, waiting for Tofa's manual tests). Phase 1 done.
 - App runs on Tofa's machine: yes (pnpm dev opens a window titled ORU; onboarding runs)
-- Last session: 2026-11-11, Phase 1
+- Last session: 2026-11-12, Phase 2
 
 ## Phases
 
@@ -24,6 +24,33 @@ Claude Code: read this file at the start of each session and update it at the en
 ## Session log
 
 Add one entry per session, newest first.
+
+### 2026-11-12, Phase 2
+Done:
+- Spike (`pnpm spike:shell`, kept in `scripts/spike/`) run by Tofa. Window stacking: placing ORU directly above `Progman` works (apps stay in front, clicks and typing reach ORU, no flicker). `HWND_BOTTOM` hid it under the desktop; `WorkerW` lost the window off-screen. Taskbar: auto-hide works and slides back at the bottom edge; hiding `Shell_TrayWnd` left an empty strip and the Windows key could not bring it back.
+- Full-screen sizing needed three fixes, each confirmed on Tofa's screen: `resizable: false` clamped the window short, a resize frame left 11 px hidden and 2 px visible gaps, Windows 11 rounded the corners. Now: `thickFrame: false`, sized in physical pixels, square corners, no outline. Measured 2560x1600 at 0,0.
+- `src/main/shell/`: `enterOruView`, `enterWindowsView`, `getView`, `toggleView`, `restoreSystemState`, `recoverFromCrash`, `applyLoginItem`; Win32 calls in `win32.ts` through koffi. No-op off Windows.
+- Config `shell: { enabled, launchAtLogin, hideTaskbar }` (enabled on Windows, login off, hide on). Settings → Desktop.
+- Taskbar flag file `userData/shell-state.json` written before auto-hide is turned on. Restored on before-quit, will-quit, process exit, uncaught exceptions (which also switch to Windows view), and at next launch if the file is still there.
+- View toggle: Ctrl+Alt+W (fallback Ctrl+Alt+D), tray menu item, tray click, IPC `shell:set-view` / `shell:get-view` / `shell:view` event (preload `setShellView`, `getShellView`, `onShellView`).
+- Auto notch mode is off in shell mode. Closing the ORU window (Alt+F4) goes to Windows view. ORU is hidden from Alt+Tab and the taskbar.
+- koffi added to `asarUnpack` for the Phase 10 installer.
+Not done:
+- Tofa's manual tests below. Phase 2 stays unchecked until they pass.
+- Windows view shows only the tray icon, no compact bar (the default proposed in the plan; Tofa did not ask for the bar).
+Decisions: D13 (window above desktop), D14 (taskbar auto-hide), D15 (koffi).
+Manual tests for Tofa:
+1. `pnpm dev`: ORU fills the whole screen with no gaps and the taskbar is gone.
+2. Open File Explorer and a browser: both appear above ORU. Click the ORU background: both stay in front.
+3. Click an ORU button: it responds.
+4. Press Ctrl+Alt+W: the taskbar returns and ORU hides. Press again: ORU returns and the taskbar hides.
+5. Right-click the tray icon: "Switch to Windows view (Ctrl+Alt+W)" works, then "Switch to ORU view".
+6. Quit ORU from the tray: the taskbar is back.
+7. Kill ORU in Task Manager (end the "Electron" task) while in ORU view: the taskbar stays hidden. Run `pnpm dev` again: the taskbar comes back as ORU starts, and hides again once the ORU view shows. Quit from the tray: taskbar back.
+8. Trigger a permission prompt (ask ORU to open an app once a model exists, Phase 6; until then skip): it appears above everything.
+9. Press Win+D and Alt+Tab while in ORU view. Tell me what happens (ORU should not show in Alt+Tab).
+10. Settings → Desktop: turn "Hide the taskbar" off while in ORU view: the taskbar returns at once.
+Next step: Tofa runs the tests; then Phase 3 (`prompts/03-face.md`).
 
 ### 2026-11-11, Phase 1
 Done:
@@ -57,9 +84,15 @@ Next step:
 
 ## Open questions for Tofa
 
+- Windows view shows only the tray icon. Should the compact bar stay visible there as a "listening" indicator?
+- In ORU view, the summon hotkey (Ctrl+Alt+Space) focuses ORU's type field but does not raise ORU above open apps. Phase 7's typing panel may be the better home for typing from anywhere.
+
 - The default wake word is now `oru`. The Vosk English model may not know that word, so wake detection could miss it. Check in Phase 5.
 
 ## Known issues
+
+- A hard kill leaves the taskbar on auto-hide until ORU next starts (it slides up at the bottom edge meanwhile). Fix by hand: Settings → Personalization → Taskbar → Taskbar behaviors → untick "Automatically hide the taskbar".
+- `shell.enabled` changes the window frame, so it only takes effect on restart.
 
 - Phase 6: replace onboarding's "Set up later" skip with the Ollama provider and fix the step subtitle ("free on-device" is macOS-only today).
 - AGENTS.md is stale in two places: the Summon hotkey bullet (Phase 7 section) still says Alt+Space with a Control+Shift+Space fallback, and there is no longer an update banner or analytics. D11 is the current behaviour.
