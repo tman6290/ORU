@@ -110,6 +110,14 @@ export interface OpenDexConfig {
     /** Animate cursor moves (watchable) vs teleport instantly (fastest). */
     animateCursor: boolean;
   };
+  shell: {
+    /** Windows: ORU is the desktop (fullscreen, behind apps). Takes effect on restart. */
+    enabled: boolean;
+    /** Start ORU when Tofa signs in to Windows. */
+    launchAtLogin: boolean;
+    /** Auto-hide the taskbar while the ORU view is showing. */
+    hideTaskbar: boolean;
+  };
   onboarding: { completed: boolean };
 }
 
@@ -179,6 +187,13 @@ export const DEFAULT_CONFIG: OpenDexConfig = {
     permissions: { open: "ask", computer: "ask" },
   },
   computer: { animateCursor: true },
+  // Shell mode is Windows-only (D6, D13, D14). Login launch stays off until
+  // Tofa turns it on.
+  shell: {
+    enabled: typeof process !== "undefined" && process.platform === "win32",
+    launchAtLogin: false,
+    hideTaskbar: true,
+  },
   onboarding: { completed: false },
 };
 

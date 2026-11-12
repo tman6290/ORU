@@ -57,6 +57,11 @@ export const IPC = {
   viewCommand: "view:command",
   // main → main window: a relayed command to execute against `useDex`.
   remoteCommand: "remote:command",
+  // Shell view (Windows): renderer → main set / get the view ("oru" | "windows");
+  // main → renderer event when it changes.
+  shellSetView: "shell:set-view",
+  shellGetView: "shell:get-view",
+  shellView: "shell:view",
   // main → renderer event: the summon hotkey brought the window forward
   windowSummoned: "window:summoned",
   // notch renderer → main: set the notch window size (px). The renderer measures

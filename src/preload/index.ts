@@ -14,6 +14,7 @@ import {
   type WindowMode,
 } from "../main/ipc/channels";
 import type { PermissionDecision } from "../main/agent/permissions";
+import type { ShellView } from "../main/shell";
 import type {
   DeepPartial,
   OpenDexConfig,
@@ -238,6 +239,25 @@ const opendex = {
    *  receive keystrokes (it's shown unfocused via showInactive). */
   focusNotch(): void {
     ipcRenderer.send(IPC.notchFocus);
+  },
+
+  // ── Shell view (Windows desktop mode) ────────────────────────────────────
+
+  /** Switch between the ORU desktop and plain Windows. No-op when shell mode is off. */
+  setShellView(view: ShellView): void {
+    ipcRenderer.send(IPC.shellSetView, view);
+  },
+
+  /** Whether shell mode is active, and the current view. */
+  getShellView(): Promise<{ active: boolean; view: ShellView }> {
+    return ipcRenderer.invoke(IPC.shellGetView);
+  },
+
+  /** Subscribe to shell view changes. Returns an unsubscribe fn. */
+  onShellView(handler: (view: ShellView) => void): () => void {
+    const listener = (_e: IpcRendererEvent, view: ShellView) => handler(view);
+    ipcRenderer.on(IPC.shellView, listener);
+    return () => ipcRenderer.removeListener(IPC.shellView, listener);
   },
 
   /** Subscribe to window-mode changes applied by main. Returns an unsubscribe fn. */

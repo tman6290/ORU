@@ -51,6 +51,20 @@ import {
   updateConfig,
 } from "./config/store";
 import type { DeepPartial, OpenDexConfig, SecretName, SttProvider } from "./config/schema";
+import {
+  applyLoginItem,
+  attachShellWindow,
+  enterOruView,
+  enterWindowsView,
+  getView,
+  initShell,
+  isShellActive,
+  recoverFromCrash,
+  restoreSystemState,
+  shellWindowOptions,
+  toggleView,
+  type ShellView,
+} from "./shell";
 
 // Load a dev .env first; initConfig() then layers the user's saved config on
 // top (config values win; .env remains a fallback for unset secrets).
@@ -105,6 +119,9 @@ function createWindow() {
     ...(process.platform === "darwin"
       ? { titleBarStyle: "hidden" as const, trafficLightPosition: { x: 16, y: 18 } }
       : {}),
+    // Shell mode (Windows): frameless, fills the primary display, sits behind
+    // apps. See src/main/shell and D13.
+    ...(isShellActive() ? shellWindowOptions() : {}),
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
       contextIsolation: true,
@@ -119,7 +136,10 @@ function createWindow() {
 
   mainWindow = win;
 
-  win.once("ready-to-show", () => win.show());
+  win.once("ready-to-show", () => {
+    if (isShellActive()) enterOruView();
+    else win.show();
+  });
 
   // Closing the window (red traffic light / Ctrl+W) collapses to the notch
   // instead of tearing down the renderer — that would kill the live voice
@@ -130,7 +150,9 @@ function createWindow() {
   win.on("close", (event) => {
     if (isQuitting) return;
     event.preventDefault();
-    if (getConfig().onboarding.completed) applyWindowMode("notch");
+    // In shell mode ORU is the desktop: closing it means "go to Windows view".
+    if (isShellActive()) enterWindowsView();
+    else if (getConfig().onboarding.completed) applyWindowMode("notch");
     else win.hide();
   });
 
@@ -139,6 +161,7 @@ function createWindow() {
   });
 
   attachAutoModeListeners(win);
+  attachShellWindow(win);
 
   win.webContents.setWindowOpenHandler(({ url }) => {
     void shell.openExternal(url);
@@ -391,7 +414,10 @@ function attachAutoModeListeners(win: BrowserWindow) {
   win.on("blur", () => {
     // Don't collapse to notch when the blur is the permission popup taking focus
     // — answering a prompt shouldn't change the main window's layout.
+    // Shell mode: ORU is the desktop, so clicking into an app must not collapse
+    // it to the notch. The overlay HUD and permission popup still float on top.
     if (
+      !isShellActive() &&
       getConfig().onboarding.completed &&
       win.isVisible() &&
       pendingPermissions() === 0
@@ -405,6 +431,14 @@ function attachAutoModeListeners(win: BrowserWindow) {
 // notch mode this shows + focuses the bar so you can type immediately.
 function summonWindow({ toggle = true }: { toggle?: boolean } = {}) {
   if (!mainWindow || mainWindow.isDestroyed()) createWindow();
+  // Shell mode: summon brings back the ORU view (it never hides itself here;
+  // the view hotkey does that) and focuses the type field.
+  if (isShellActive()) {
+    if (getView() !== "oru") enterOruView();
+    else mainWindow?.focus();
+    mainWindow?.webContents.send(IPC.windowSummoned);
+    return;
+  }
   if (windowMode === "notch") {
     const notch =
       notchWindow && !notchWindow.isDestroyed() ? notchWindow : createNotchWindow();
@@ -681,6 +715,11 @@ function registerIpc() {
     broadcastConfig();
     // Re-bind the global summon shortcut if the user rebound it in Settings.
     if (patch.hotkeys?.summon) registerSummonHotkey();
+    if (patch.shell) {
+      applyLoginItem();
+      // Re-apply the taskbar choice live while the ORU view is showing.
+      if (patch.shell.hideTaskbar !== undefined && getView() === "oru") enterOruView();
+    }
     return result;
   });
 
@@ -732,6 +771,13 @@ function registerIpc() {
   ipcMain.on(IPC.windowSetMode, (_event, mode: WindowMode) => {
     applyWindowMode(mode);
   });
+
+  // Shell view (ORU desktop ↔ plain Windows). Renderer and skills call these.
+  ipcMain.on(IPC.shellSetView, (_event, next: ShellView) => {
+    if (next === "oru") enterOruView();
+    else if (next === "windows") enterWindowsView();
+  });
+  ipcMain.handle(IPC.shellGetView, () => ({ active: isShellActive(), view: getView() }));
 
   // Notch hover → grow/shrink the notch window.
   ipcMain.on(IPC.notchSetSize, (_event, size: { width: number; height: number }) => {
@@ -822,6 +868,60 @@ function registerSummonHotkey() {
   console.error("[opendex] failed to register a summon hotkey");
 }
 
+// Shell view toggle (ORU desktop ↔ Windows). Registered in main so it works
+// while the renderer hangs (D6). Ctrl+Alt+W, falling back to Ctrl+Alt+D.
+// Keep VIEW_HINT in renderer/src/lib/hotkeys.ts in sync.
+let viewAccelerator = "";
+
+function registerViewHotkey() {
+  if (process.platform !== "win32" || !isShellActive()) return;
+  for (const accelerator of ["Control+Alt+W", "Control+Alt+D"]) {
+    if (globalShortcut.isRegistered(accelerator)) continue;
+    try {
+      if (globalShortcut.register(accelerator, () => toggleView())) {
+        viewAccelerator = accelerator;
+        return;
+      }
+    } catch {
+      // try the next candidate
+    }
+  }
+  console.error("[oru] failed to register the view hotkey");
+}
+
+function onShellViewChanged(view: ShellView) {
+  buildTrayMenu();
+  for (const win of BrowserWindow.getAllWindows()) {
+    if (!win.isDestroyed()) win.webContents.send(IPC.shellView, view);
+  }
+}
+
+function buildTrayMenu() {
+  if (!tray) return;
+  const hotkey = viewAccelerator ? ` (${viewAccelerator.replace("Control", "Ctrl")})` : "";
+  const viewItems: Electron.MenuItemConstructorOptions[] = isShellActive()
+    ? [
+        getView() === "oru"
+          ? { label: `Switch to Windows view${hotkey}`, click: () => enterWindowsView() }
+          : { label: `Switch to ORU view${hotkey}`, click: () => enterOruView() },
+        { type: "separator" },
+      ]
+    : [{ label: "Show ORU", click: () => summonWindow({ toggle: false }) }, { type: "separator" }];
+  const menu = Menu.buildFromTemplate([
+    ...viewItems,
+    { label: "Settings…", click: () => openSettingsWindow() },
+    { type: "separator" },
+    {
+      label: "Quit ORU",
+      click: () => {
+        isQuitting = true;
+        app.quit();
+      },
+    },
+  ]);
+  tray.setContextMenu(menu);
+}
+
 function createTray() {
   if (tray) return;
   // A 1px transparent image is a safe cross-platform placeholder; a real
@@ -835,25 +935,16 @@ function createTray() {
     return;
   }
   tray.setToolTip("ORU");
-  const menu = Menu.buildFromTemplate([
-    { label: "Show ORU", click: () => summonWindow({ toggle: false }) },
-    { type: "separator" },
-    { label: "Settings…", click: () => openSettingsWindow() },
-    { type: "separator" },
-    {
-      label: "Quit ORU",
-      click: () => {
-        isQuitting = true;
-        app.quit();
-      },
-    },
-  ]);
-  tray.setContextMenu(menu);
-  tray.on("click", () => summonWindow());
+  buildTrayMenu();
+  tray.on("click", () => (isShellActive() ? toggleView() : summonWindow()));
 }
 
 app.whenReady().then(() => {
   initConfig();
+  // A leftover shell flag means the last run died with the taskbar hidden.
+  recoverFromCrash();
+  initShell({ getMainWindow: () => mainWindow, onViewChanged: onShellViewChanged });
+  applyLoginItem();
   registerIpc();
   createWindow();
   createOverlayWindow();
@@ -884,6 +975,8 @@ app.whenReady().then(() => {
   registerPushToTalkHotkey();
   registerInterruptHotkey();
   registerSummonHotkey();
+  registerViewHotkey();
+  buildTrayMenu(); // now that the view hotkey label is known
 
   app.on("activate", () => {
     // Dock click / re-activate: bring the existing window forward (it's hidden,
@@ -895,10 +988,24 @@ app.whenReady().then(() => {
 app.on("before-quit", () => {
   // Let the main window actually close instead of hiding (see its close handler).
   isQuitting = true;
+  restoreSystemState();
 });
 
 app.on("will-quit", () => {
+  restoreSystemState();
   globalShortcut.unregisterAll();
+});
+
+// Last-chance taskbar restore. A hard kill skips these; the flag file covers
+// that case at next launch (recoverFromCrash).
+process.on("exit", () => restoreSystemState());
+process.on("uncaughtException", (err) => {
+  console.error("[oru] uncaught exception", err);
+  try {
+    enterWindowsView();
+  } catch {
+    restoreSystemState();
+  }
 });
 
 app.on("window-all-closed", () => {

@@ -10,3 +10,6 @@ export const PTT_HINT = IS_MAC ? "⌘⇧Space" : "Ctrl+Shift+Space";
 
 /** Emergency stop: Ctrl+Alt+Backspace on Windows, ⌘/Ctrl+Esc elsewhere. */
 export const STOP_HINT = IS_MAC ? "⌘⎋" : IS_WIN ? "Ctrl+Alt+Backspace" : "Ctrl+Esc";
+
+/** Shell view toggle (Windows only): Ctrl+Alt+W, falling back to Ctrl+Alt+D. */
+export const VIEW_HINT = "Ctrl+Alt+W";
