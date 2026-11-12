@@ -16,6 +16,7 @@ import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { getConfig } from "../config/store";
 import * as w32 from "./win32";
+import { startTaskbarWatchdog } from "./watchdog";
 
 export type ShellView = "oru" | "windows";
 
@@ -79,8 +80,10 @@ function hideTaskbar(): void {
   if (existsSync(flagPath())) return; // already hidden by us; keep the original state
   const original = w32.getTaskbarState();
   if (original & w32.TASKBAR_AUTOHIDE) return; // Tofa already auto-hides it
-  // Flag first, so a crash between these two lines still restores.
+  // Flag first, so a crash between these two lines still restores. The
+  // watchdog restores it even after a hard kill (see watchdog.ts).
   writeFileSync(flagPath(), JSON.stringify({ taskbarState: original } satisfies SavedState));
+  startTaskbarWatchdog(flagPath());
   w32.setTaskbarState(original | w32.TASKBAR_AUTOHIDE);
 }
 

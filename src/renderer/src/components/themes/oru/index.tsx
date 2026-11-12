@@ -219,10 +219,11 @@ function OruTheme(props: DexThemeProps) {
 
   // ── Geometry. The centre stage fits the space the panels leave free, so
   // nothing overlaps (check with oruLayoutCheck() in `pnpm preview:oru`).
-  // Measured spans (oruLayoutCheck, in orb sizes): widest piece 1.52 (ring);
-  // lattice top 0.78 above the orb centre; platform bottom 0.82 below it.
+  // Measured spans (oruLayoutCheck, in orb sizes): widest piece 1.42 (ring);
+  // lattice top 0.63 above the orb centre; platform bottom 0.64 below it.
+  // The sphere itself is 0.8 of the orb box.
   // The orb is the focus (D20): it takes all the space these allow.
-  const GAP = 24;
+  const GAP = 16;
   const leftEdge = PANEL.margin + PANEL.left + GAP;
   const rightEdge = vp.w - PANEL.margin - PANEL.right - GAP;
   const stageX = Math.round((leftEdge + rightEdge) / 2);
@@ -231,12 +232,12 @@ function OruTheme(props: DexThemeProps) {
   const orb = Math.max(
     160,
     Math.round(
-      Math.min((rightEdge - leftEdge) / 1.55, (stageBottom - stageTop) / 1.62, vp.h * 0.52),
+      Math.min((rightEdge - leftEdge) / 1.45, (stageBottom - stageTop) / 1.3, vp.h * 0.62),
     ),
   );
-  const ringSize = Math.round(orb * 1.5);
-  const slack = stageBottom - stageTop - 1.62 * orb;
-  const orbCenterY = Math.round(stageTop + 0.78 * orb + Math.max(0, slack) / 2);
+  const ringSize = Math.round(orb * 1.4);
+  const slack = stageBottom - stageTop - 1.3 * orb;
+  const orbCenterY = Math.round(stageTop + 0.65 * orb + Math.max(0, slack) / 2);
   const orbCenter = useRef({ x: 0, y: 0 });
   orbCenter.current = { x: stageX, y: orbCenterY };
   const getOrbCenter = useCallback(() => orbCenter.current, []);
@@ -279,8 +280,8 @@ function OruTheme(props: DexThemeProps) {
         style={{
           left: stageX,
           top: orbCenterY,
-          width: orb * 2.4,
-          height: orb * 2.4,
+          width: orb * 2,
+          height: orb * 2,
           background: `radial-gradient(circle, ${mix("primary", 16)} 0%, ${mix("primary", 6)} 35%, transparent 65%)`,
           zIndex: 1,
         }}
@@ -289,13 +290,13 @@ function OruTheme(props: DexThemeProps) {
       {/* Centre stage */}
       <div
         className="pointer-events-none absolute -translate-x-1/2"
-        style={{ left: stageX, top: orbCenterY + orb * 0.4, zIndex: 1 }}
+        style={{ left: stageX, top: orbCenterY + orb * 0.36, zIndex: 1 }}
       >
         <Platform width={ringSize * 0.75} />
       </div>
       <div
         className="pointer-events-none absolute -translate-x-1/2"
-        style={{ left: stageX, top: orbCenterY - orb * 0.4 - ringSize * 0.26, zIndex: 1 }}
+        style={{ left: stageX, top: orbCenterY - orb * 0.3 - ringSize * 0.26, zIndex: 1 }}
       >
         <MindLattice width={ringSize * 0.85} />
       </div>

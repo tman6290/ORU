@@ -55,6 +55,9 @@ Follow-up after Tofa's review (same day):
 - Main window `autoplayPolicy: no-user-gesture-required`, so alarms and the Phase 4 greeting play without a click.
 - Phase 4 prompt gains "alerts in ORU's voice"; Phase 7 gains a security monitor that raises critical alerts.
 - Size hierarchy (D20): orb 25% larger on the Legion (visible sphere ~196 → ~244 px at 1280x800), panels narrower and quieter, halo behind the orb. Layout check clean at both sizes with typing panel and alert banner.
+- Taskbar stuck on auto-hide after Ctrl+C on `pnpm dev` (2026-11-12): restored Tofa's setting by hand, then D21 (signal handlers + watchdog). Hard-kill test on the real taskbar: restored in about 1 s.
+- `%APPDATA%\ORU` was found recreated at 16:32 on 2026-11-12 (Phase 1 config gone, so onboarding reappeared). Cause unknown; ORU only deletes `config.json`/`secrets.json` on Settings → Reset. Onboarding marked complete in the new config (backup: `config.backup-before-onboarding-skip.json`).
+- Orb much bigger (D20): sphere 362 px at 1280x800 (was 244), 536 px at 1920x1080. Lattice and platform flattened, ring 1.4x. Layout check clean at both sizes, with typing panel and alert banner.
 Next step: Tofa runs the tests and reports the two numbers; then Phase 4 (`prompts/04-voice-out.md`).
 
 ### 2026-11-12, Phase 2
@@ -126,7 +129,7 @@ Next step:
 
 ## Known issues
 
-- A hard kill leaves the taskbar on auto-hide until ORU next starts (it slides up at the bottom edge meanwhile). Fix by hand: Settings → Personalization → Taskbar → Taskbar behaviors → untick "Automatically hide the taskbar".
+- If the taskbar ever stays on auto-hide after ORU exits: start ORU once and quit from the tray, or Settings → Personalization → Taskbar → Taskbar behaviors → untick "Automatically hide the taskbar". The D21 watchdog should make this rare.
 - `shell.enabled` changes the window frame, so it only takes effect on restart.
 
 - Phase 6: replace onboarding's "Set up later" skip with the Ollama provider and fix the step subtitle ("free on-device" is macOS-only today).

@@ -8,7 +8,7 @@ import { motion } from "./motion";
 // memory. At rest it is a faint, slowly twinkling net.
 
 const W = 400;
-const H = 140;
+const H = 105; // flat arch: keeps the stage short so the orb can be big
 const NODE_COUNT = 30;
 
 function rng(seed: number) {

@@ -1013,9 +1013,17 @@ app.on("will-quit", () => {
   globalShortcut.unregisterAll();
 });
 
-// Last-chance taskbar restore. A hard kill skips these; the flag file covers
-// that case at next launch (recoverFromCrash).
+// Last-chance taskbar restore. Ctrl+C in the dev terminal arrives as SIGINT,
+// closing the terminal window as SIGHUP. A hard kill runs none of these; the
+// shell watchdog and the flag file (recoverFromCrash) cover that.
 process.on("exit", () => restoreSystemState());
+for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const) {
+  process.on(signal, () => {
+    restoreSystemState();
+    isQuitting = true;
+    app.quit();
+  });
+}
 process.on("uncaughtException", (err) => {
   console.error("[oru] uncaught exception", err);
   try {

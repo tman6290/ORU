@@ -123,7 +123,7 @@ export function Platform({ width }: { width: number }) {
         style={{
           width,
           height: width,
-          transform: `translate(-50%, -50%) perspective(${width * 2}px) rotateX(76deg)`,
+          transform: `translate(-50%, -50%) perspective(${width * 2}px) rotateX(79deg)`,
           filter: "drop-shadow(0 0 4px var(--oru-glow))",
         }}
       >

@@ -56,7 +56,7 @@ void main() {
   float breath = sin(t * 1.1) * 0.012 * (idle + muted);
   float amp = 0.008 + 0.012 * listen + 0.02 * think + uLevel * (0.05 * speak + 0.03 * listen);
   float disp = (fbm(vec3(dir * 2.2, t * (0.25 + 0.9 * think + 0.6 * speak))) - 0.5) * 2.0 * amp;
-  float R = 0.66 * (1.0 + breath + disp + uLevel * (0.07 * speak + 0.03 * listen) - 0.04 * muted);
+  float R = 0.8 * (1.0 + breath + disp + uLevel * (0.07 * speak + 0.03 * listen) - 0.04 * muted);
 
   vec3 green = vec3(0.224, 1.0, 0.078);      // --oru-primary
   vec3 red = vec3(1.0, 0.078, 0.125);        // its neon-red twin (D19)
@@ -90,7 +90,7 @@ void main() {
   }
   // Glow outside the rim (and a faint halo inside it).
   float edge = max(0.0, r - R);
-  float glow = exp(-edge * (7.0 - 2.5 * speak * uLevel)) * (0.45 + 0.5 * speak * uLevel + 0.2 * listen);
+  float glow = exp(-edge * (12.0 - 4.0 * speak * uLevel)) * (0.45 + 0.5 * speak * uLevel + 0.2 * listen);
   col += base * glow * bright * (1.0 - 0.7 * uLow) * (r < R ? 0.0 : 1.0);
 
   float a = clamp(max(col.r, max(col.g, col.b)), 0.0, 1.0);
@@ -115,7 +115,7 @@ void main() {
   float ct = cos(0.4), st = sin(0.4);
   p = vec3(p.x, ct * p.y - st * p.z, st * p.y + ct * p.z);
   // Shell radius: breathes out with voice, pulls in while thinking.
-  float rad = 0.84 + uLevel * (0.12 * speak + 0.06 * listen) - 0.08 * think
+  float rad = 0.93 + uLevel * (0.12 * speak + 0.06 * listen) - 0.08 * think
             + 0.02 * sin(uTime * 2.0 + aPos.y * 6.0) * think;
   p *= rad;
   float persp = 1.0 / (1.0 - p.z * 0.35);
