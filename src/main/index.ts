@@ -66,7 +66,15 @@ import {
   type ShellView,
 } from "./shell";
 import { getSystemStats } from "./system/stats";
-import { clearAlert, initAlerts, listAlerts, raiseAlert, type AlertInput } from "./alerts";
+import {
+  clearAlert,
+  initAlerts,
+  isSilenceCommand,
+  listAlerts,
+  raiseAlert,
+  silenceAlerts,
+  type AlertInput,
+} from "./alerts";
 
 // Load a dev .env first; initConfig() then layers the user's saved config on
 // top (config values win; .env remains a fallback for unset secrets).
@@ -563,6 +571,25 @@ function registerIpc() {
 
   ipcMain.on(IPC.chatStart, async (event, payload: ChatStartPayload) => {
     const { requestId, messages, mode } = payload;
+    // "Silence" (typed or spoken) while an alert is sounding: handle it here,
+    // instantly and without a model (works before Phase 6 too).
+    const lastUser = [...messages].reverse().find((m) => m.role === "user");
+    const lastText =
+      typeof lastUser?.content === "string"
+        ? lastUser.content
+        : Array.isArray(lastUser?.content)
+          ? lastUser.content.map((p) => ("text" in p ? p.text : "")).join(" ")
+          : "";
+    if (listAlerts().some((a) => !a.silenced) && isSilenceCommand(lastText)) {
+      silenceAlerts();
+      const reply = "Alarm silenced. I'll keep watching it.";
+      const sender = event.sender;
+      if (!sender.isDestroyed()) {
+        sender.send(IPC.chatDelta(requestId), reply);
+        sender.send(IPC.chatDone(requestId), [{ role: "assistant", content: reply }]);
+      }
+      return;
+    }
     const ac = new AbortController();
     inFlight.set(requestId, ac);
     const sender = event.sender;
@@ -789,6 +816,7 @@ function registerIpc() {
     raiseAlert(alert);
   });
   ipcMain.on(IPC.alertAck, (_event, id: string) => clearAlert(id));
+  ipcMain.on(IPC.alertSilence, () => silenceAlerts());
   ipcMain.handle(IPC.alertsGet, () => listAlerts());
 
   // Notch hover → grow/shrink the notch window.
@@ -844,6 +872,8 @@ function registerInterruptHotkey() {
     process.platform === "win32" ? "Control+Alt+Backspace" : "CommandOrControl+Escape";
   try {
     globalShortcut.register(accelerator, () => {
+      // The emergency stop also silences a sounding alarm, from any app.
+      silenceAlerts();
       mainWindow?.webContents.send(IPC.interrupt);
     });
   } catch (err) {

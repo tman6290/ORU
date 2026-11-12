@@ -255,6 +255,11 @@ const opendex = {
     ipcRenderer.send(IPC.alertRaise, alert);
   },
 
+  /** Silence all alerts: stops the alarm, blinking and repeats; the screen stays red. */
+  silenceAlerts(): void {
+    ipcRenderer.send(IPC.alertSilence);
+  },
+
   /** Acknowledge (dismiss) an alert by id. */
   ackAlert(id: string): void {
     ipcRenderer.send(IPC.alertAck, id);

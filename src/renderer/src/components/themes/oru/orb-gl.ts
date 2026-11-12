@@ -86,7 +86,8 @@ void main() {
     // Specular glint (upper left) sells the glass.
     float spec = pow(max(dot(n, normalize(vec3(-0.45, 0.55, 0.7))), 0.0), 40.0) * 0.35;
     float v = 0.006 + pow(dens, 2.5) * 0.12 + rim * 1.9 + skin + bands * think * 0.4 + core;
-    col = base * v * bright + vec3(spec * 0.6, spec, spec * 0.6) * bright;
+    // Glint: a pale tint of the current colour (green normally, red in an alert).
+    col = base * v * bright + mix(vec3(1.0), base, 0.55) * spec * bright;
   }
   // Glow outside the rim (and a faint halo inside it).
   float edge = max(0.0, r - R);

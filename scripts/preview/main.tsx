@@ -13,7 +13,7 @@ const fakeStats = () => ({
 });
 
 // Minimal stand-in for main's alert bus (src/main/alerts.ts).
-type FakeAlert = { id: string; level: string; title: string; speech?: string; source: string; at: number };
+type FakeAlert = { id: string; level: string; title: string; speech?: string; source: string; at: number; silenced?: boolean };
 let alerts: FakeAlert[] = [];
 const alertListeners = new Set<(a: FakeAlert[]) => void>();
 const emitAlerts = () => alertListeners.forEach((l) => l([...alerts]));
@@ -25,6 +25,10 @@ const emitAlerts = () => alertListeners.forEach((l) => l([...alerts]));
     alerts = [...alerts.filter((x) => x.id !== id), { ...a, id, speech, at: Date.now() }];
     emitAlerts();
     if (a.level === "error") setTimeout(() => { alerts = alerts.filter((x) => x.id !== id); emitAlerts(); }, 10_000);
+  },
+  silenceAlerts: () => {
+    alerts = alerts.map((a) => ({ ...a, silenced: true }));
+    emitAlerts();
   },
   ackAlert: (id: string) => {
     alerts = alerts.filter((x) => x.id !== id);

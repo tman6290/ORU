@@ -61,7 +61,9 @@ Two levels (D19). Anything can raise one through the alert bus in `src/main/aler
 | Level | When | What Tofa sees and hears |
 | --- | --- | --- |
 | Error | Something failed: the model is unreachable, a skill errored, voice input broke | The interface turns neon red. ORU says what went wrong in a sentence. A banner replaces the status pill. Clears after 10 s or on Dismiss. |
-| Critical | A serious issue: an attack or intrusion, a security product reporting a threat, a system fault Tofa must act on | Red, plus the screen edge throbbing like a klaxon light, a blinking WARNING banner, and a two-tone alarm. ORU says "Warning! Warning! <issue>" and repeats it every 20 s until Tofa presses Acknowledge. Speaks even when muted. |
+| Critical | A serious issue: an attack or intrusion, a security product reporting a threat, a system fault Tofa must act on | Red, plus the screen edge throbbing like a klaxon light, a blinking WARNING banner, and a two-tone alarm. ORU says "Warning! Warning! <issue>" and repeats it every 20 s. Speaks even when muted. |
+
+**Silence and resolve.** Silencing stops the alarm, the blinking and the repeated warnings; the screen stays a steady red and the banner reads "Silenced", because the issue is still there. Ways to silence: the Silence button on the banner, Esc in ORU, the emergency-stop hotkey Ctrl+Alt+Backspace from any app, or typing or saying "silence", "stop the alarm", "quiet" and similar (handled before the model, so it works without one). When the issue is solved, its source clears the alert and ORU turns green by itself; Dismiss clears it by hand.
 
 The alarm is synthesised with Web Audio (original, no samples). Its volume joins the sound settings in Phase 10.
 

@@ -100,7 +100,7 @@ export function OponRing({ size }: { size: number }) {
   useFrame((_t, dt) => {
     // Slow turn; faster while thinking; a small kick on each tool call.
     angle.current += dt * (3 + 14 * motion.w.thinking + 4 * motion.w.speaking) + motion.toolTick * 0.6;
-    const split = motion.w.thinking * 7; // segments drift apart while thinking
+    const split = motion.w.thinking * 3.5; // segments drift apart while thinking
     const rot = `rotate(${angle.current.toFixed(2)} 100 100)`;
     for (const refs of [backRefs.current, frontRefs.current]) {
       refs.forEach((g, i) => {

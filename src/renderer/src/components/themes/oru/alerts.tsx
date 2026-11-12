@@ -6,7 +6,10 @@ import type { AlertLevel } from "./motion";
 // Alerts in the theme (D19):
 //   error    → neon red, ORU says what went wrong once.
 //   critical → red + blinking + klaxon, ORU says "Warning! Warning! …" and
-//              repeats it every 20 s until Tofa presses Acknowledge.
+//              repeats it every 20 s until silenced.
+// Silence (button, Esc, Ctrl+Alt+Backspace, or typing/saying "silence") stops
+// the klaxon, blinking and repeats; the screen stays a steady red until the
+// issue is solved (its source clears the alert) or Tofa dismisses it.
 // Speech here uses the built-in Windows voices (offline) as a stop-gap;
 // Phase 4 routes alert speech through ORU's own voice.
 
@@ -26,7 +29,7 @@ export function useAlerts(): OruAlert[] {
 }
 
 export function alertLevelOf(alerts: OruAlert[], voiceError: boolean): AlertLevel {
-  if (alerts.some((a) => a.level === "critical")) return "critical";
+  if (alerts.some((a) => a.level === "critical" && !a.silenced)) return "critical";
   if (voiceError || alerts.length) return "error";
   return "none";
 }
@@ -94,14 +97,14 @@ function say(text: string) {
 export function useAlertVoice(alerts: OruAlert[], isMuted: boolean) {
   const klaxon = useRef(new Klaxon());
   const spoken = useRef(new Set<string>());
-  const critical = alerts.filter((a) => a.level === "critical");
+  const critical = alerts.filter((a) => a.level === "critical" && !a.silenced);
 
   // Speak each new alert once.
   useEffect(() => {
     for (const a of alerts) {
       if (spoken.current.has(a.id + a.at)) continue;
       spoken.current.add(a.id + a.at);
-      if (a.level === "error" && isMuted) continue;
+      if (a.silenced || (a.level === "error" && isMuted)) continue;
       say(a.speech ?? a.title);
     }
   }, [alerts, isMuted]);
@@ -111,6 +114,8 @@ export function useAlertVoice(alerts: OruAlert[], isMuted: boolean) {
   useEffect(() => {
     if (!criticalKey) {
       klaxon.current.stop();
+      // Cut off a warning mid-sentence when silenced or resolved.
+      window.speechSynthesis?.cancel();
       return;
     }
     klaxon.current.start();
@@ -131,6 +136,9 @@ export function AlertBanner({ alerts }: { alerts: OruAlert[] }) {
     [...alerts].reverse().find((a) => a.level === "critical") ?? alerts[alerts.length - 1];
   if (!top) return null;
   const critical = top.level === "critical";
+  const sounding = critical && !top.silenced;
+  const btn =
+    "oru-label shrink-0 border px-2 py-1 !text-[10px] hover:bg-[var(--oru-primary-faint)]";
   return (
     <div
       data-oru="status"
@@ -138,20 +146,32 @@ export function AlertBanner({ alerts }: { alerts: OruAlert[] }) {
       title={top.detail ?? top.title}
     >
       <TriangleAlert
-        className={critical ? "oru-blink size-4 shrink-0" : "size-4 shrink-0"}
+        className={sounding ? "oru-blink size-4 shrink-0" : "size-4 shrink-0"}
         style={{ color: "var(--oru-primary)" }}
       />
-      <span className={critical ? "oru-label oru-blink shrink-0" : "oru-label shrink-0"} style={{ color: "var(--oru-primary)" }}>
-        {critical ? "Warning" : "Error"}
+      <span className={sounding ? "oru-label oru-blink shrink-0" : "oru-label shrink-0"} style={{ color: "var(--oru-primary)" }}>
+        {critical ? (top.silenced ? "Silenced" : "Warning") : "Error"}
       </span>
       <span className="min-w-0 truncate text-[12px] text-[var(--oru-text)]">{top.title}</span>
+      {sounding && (
+        <button
+          type="button"
+          onClick={() => window.opendex.silenceAlerts()}
+          className={btn}
+          style={{ borderColor: "var(--oru-primary)", color: "var(--oru-text)", background: "var(--oru-primary-faint)" }}
+          title="Stop the alarm (Esc, Ctrl+Alt+Backspace, or say “silence”)"
+        >
+          Silence
+        </button>
+      )}
       <button
         type="button"
         onClick={() => window.opendex.ackAlert(top.id)}
-        className="oru-label shrink-0 border px-2 py-1 !text-[10px] hover:bg-[var(--oru-primary-faint)]"
+        className={btn}
         style={{ borderColor: "var(--oru-primary)", color: "var(--oru-text)" }}
+        title="Clear this alert"
       >
-        {critical ? "Acknowledge" : "Dismiss"}
+        Dismiss
       </button>
     </div>
   );

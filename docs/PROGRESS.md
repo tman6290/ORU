@@ -47,7 +47,7 @@ Manual tests for Tofa:
 6. Frame rate: press F8 once; the debug label shows fps (target 60). Click into another app and read it again (target 30). Esc to leave debug.
 7. Idle GPU: Task Manager → Details or Processes, GPU column for ORU (Electron) at rest. Target under 15%.
 8. Press F10: the whole interface turns neon red for 10 s with an "Error" banner, and ORU says the test error (Windows voice for now). Dismiss clears it.
-9. Press F9: red, the screen edge throbs, WARNING blinks, a two-tone alarm sounds and ORU says "Warning! Warning! …". Acknowledge stops all of it.
+9. Press F9: red, the screen edge throbs, WARNING blinks, a two-tone alarm sounds and ORU says "Warning! Warning! …". Silence it four ways (one per try): the Silence button, Esc, Ctrl+Alt+Backspace from another app, and typing "silence" in the typing panel. Each time the sound and blinking stop and the screen stays steady red with "Silenced". Press F9 again: the test issue is "solved" and ORU turns green by itself.
 Follow-up after Tofa's review (same day):
 - Overlaps fixed: at 1280x800 the ring hit the System and Actions panels and the open typing panel covered the platform. The centre stage now sizes from the free space between the panels. `oruLayoutCheck()` in `pnpm preview:oru` reports no overlaps or cut-offs at 1280x800 and 1920x1080, with the typing panel open and with an alert banner.
 - Alerts (D19): bus in `src/main/alerts.ts`, IPC `alert:raise`, `alert:ack`, `alerts:get`, `alerts:changed`. Theme `alerts.tsx`: neon-red palette swap for errors, klaxon overlay + blinking banner + Web Audio alarm for critical, speech via the Windows voice until Phase 4. Debug: F9 critical, F10 error.

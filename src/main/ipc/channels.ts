@@ -69,6 +69,7 @@ export const IPC = {
   // current list, main → all windows when the list changes.
   alertRaise: "alert:raise",
   alertAck: "alert:ack",
+  alertSilence: "alert:silence",
   alertsGet: "alerts:get",
   alertsChanged: "alerts:changed",
   // main → renderer event: the summon hotkey brought the window forward

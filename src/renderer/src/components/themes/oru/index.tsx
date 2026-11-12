@@ -71,8 +71,8 @@ function useWindowFocus() {
 
 // Debug: F8 cycles the orb through every state (with a synthetic voice level),
 // so each look can be checked before a model exists (Phase 6). F8 past the last
-// state, or Esc, returns to the real status. F9 raises a test critical alert,
-// F10 a test error alert.
+// state, or Esc, returns to the real status. F9 raises a test critical alert
+// (press again to resolve it), F10 a test error alert.
 const DEBUG_STATES: OrbState[] = ["idle", "listening", "thinking", "speaking", "muted", "error"];
 
 function useDebugState() {
@@ -87,12 +87,20 @@ function useDebugState() {
         });
         fireToolTick();
       } else if (e.key === "F9") {
+        // Press once to raise a test alarm, again to "solve" it (the source
+        // clears it, so ORU turns green by itself).
         e.preventDefault();
-        window.opendex.raiseAlert({
-          id: "debug-critical",
-          level: "critical",
-          title: "Test alarm: unknown device tried to connect",
-          source: "debug",
+        void window.opendex.getAlerts().then((list) => {
+          if (list.some((a) => a.id === "debug-critical")) {
+            window.opendex.ackAlert("debug-critical");
+          } else {
+            window.opendex.raiseAlert({
+              id: "debug-critical",
+              level: "critical",
+              title: "Test alarm: unknown device tried to connect",
+              source: "debug",
+            });
+          }
         });
       } else if (e.key === "F10") {
         e.preventDefault();
@@ -104,6 +112,7 @@ function useDebugState() {
         });
       } else if (e.key === "Escape") {
         setDebug(null);
+        window.opendex.silenceAlerts(); // Esc silences a sounding alarm
       }
     };
     window.addEventListener("keydown", onKey);
@@ -211,7 +220,8 @@ function OruTheme(props: DexThemeProps) {
 
   // ── Geometry. The centre stage fits the space the panels leave free, so
   // nothing overlaps (check with oruLayoutCheck() in `pnpm preview:oru`).
-  // Measured spans (oruLayoutCheck, in orb sizes): widest piece 1.42 (ring);
+  // Measured spans (oruLayoutCheck, sampled over a full turn while thinking,
+  // when the segments spread): the ring reaches 0.75 orb either side;
   // lattice top 0.63 above the orb centre; platform bottom 0.64 below it.
   // The sphere itself is 0.8 of the orb box.
   // The orb is the focus (D20): it takes all the space these allow.
@@ -224,10 +234,10 @@ function OruTheme(props: DexThemeProps) {
   const orb = Math.max(
     160,
     Math.round(
-      Math.min((rightEdge - leftEdge) / 1.45, (stageBottom - stageTop) / 1.3, vp.h * 0.62),
+      Math.min((rightEdge - leftEdge) / 1.52, (stageBottom - stageTop) / 1.3, vp.h * 0.62),
     ),
   );
-  const ringSize = Math.round(orb * 1.4);
+  const ringSize = Math.round(orb * 1.3);
   const slack = stageBottom - stageTop - 1.3 * orb;
   const orbCenterY = Math.round(stageTop + 0.65 * orb + Math.max(0, slack) / 2);
   const orbCenter = useRef({ x: 0, y: 0 });
