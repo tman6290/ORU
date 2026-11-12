@@ -1,4 +1,4 @@
-import { PTT_HINT } from "@/lib/hotkeys";
+import { IS_WIN, PTT_HINT, VIEW_HINT } from "@/lib/hotkeys";
 import { useState, type ComponentType } from "react";
 import {
   User,
@@ -11,6 +11,7 @@ import {
   MessageSquare,
   ShieldCheck,
   RotateCcw,
+  Monitor,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -509,6 +510,52 @@ function GreetingSection({ data, setConfig }: SectionProps) {
   );
 }
 
+// On/off as a two-option segmented control (matches the other toggles here).
+function OnOff({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <SegmentedControl
+      value={value ? "on" : "off"}
+      options={[
+        { value: "on", label: "On" },
+        { value: "off", label: "Off" },
+      ]}
+      onChange={(v) => onChange(v === "on")}
+    />
+  );
+}
+
+function DesktopSection({ data, setConfig }: SectionProps) {
+  const { shell } = data.config;
+  return (
+    <>
+      <ToggleRow
+        title="ORU as desktop"
+        description="ORU fills the screen behind your apps. Takes effect next time ORU starts."
+      >
+        <OnOff value={shell.enabled} onChange={(v) => setConfig({ shell: { enabled: v } })} />
+      </ToggleRow>
+      <ToggleRow
+        title="Hide the taskbar"
+        description="Auto-hide the taskbar in ORU view. It comes back in Windows view and when ORU quits."
+      >
+        <OnOff
+          value={shell.hideTaskbar}
+          onChange={(v) => setConfig({ shell: { hideTaskbar: v } })}
+        />
+      </ToggleRow>
+      <ToggleRow title="Start at sign-in" description="Open ORU when you sign in to Windows.">
+        <OnOff
+          value={shell.launchAtLogin}
+          onChange={(v) => setConfig({ shell: { launchAtLogin: v } })}
+        />
+      </ToggleRow>
+      <div className="text-xs text-muted-foreground">
+        Press {VIEW_HINT} to switch between ORU and Windows. The tray menu does the same.
+      </div>
+    </>
+  );
+}
+
 function PrivacySection({ data }: SectionProps) {
   return (
     <>
@@ -586,6 +633,14 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   { id: "voice-mode", label: "Voice mode", Icon: AudioWaveform, Component: VoiceModeSection },
   { id: "voice-input", label: "Voice input", Icon: Mic, Component: VoiceInputSection },
   { id: "appearance", label: "Appearance", Icon: Palette, Component: AppearanceSection },
+  {
+    id: "desktop",
+    label: "Desktop",
+    Icon: Monitor,
+    Component: DesktopSection,
+    // Shell mode is Windows-only.
+    hidden: () => !IS_WIN,
+  },
   { id: "skills", label: "Skills & tools", Icon: Blocks, Component: SkillsSection },
   { id: "model", label: "Language model", Icon: Cpu, Component: ModelSection },
   {
