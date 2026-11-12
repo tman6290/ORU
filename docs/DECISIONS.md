@@ -43,3 +43,12 @@ Push-to-talk stays Ctrl+Shift+Space. Interrupt is Ctrl+Alt+Backspace on Windows 
 
 ## D12. Package identity (2026-11-11)
 appId `tech.wolban.oru`, productName `ORU`, package name `oru`. electron-builder `publish` is `null`, so packaged builds never look for updates.
+
+## D13. ORU window sits just above the desktop (2026-11-12)
+Spike on Tofa's machine: ORU is placed directly above `Progman` with `SetWindowPos` through koffi, and drops back there after every z-order change (`WM_WINDOWPOSCHANGED`, focus). Apps stay in front, clicks and typing reach ORU, no flicker. `HWND_BOTTOM` puts it *under* the desktop (invisible); parenting to `WorkerW` lost the window off-screen. The window is frameless with `thickFrame: false` and `resizable: true` (resize blocked by `will-resize`), sized in physical pixels with square corners: any resize frame left a 2–11 px gap, and `resizable: false` clamped it short.
+
+## D14. Taskbar hides through auto-hide (2026-11-12)
+ORU turns on taskbar auto-hide with `SHAppBarMessage(ABM_SETSTATE)` and restores the previous state. Hiding `Shell_TrayWnd` left an empty strip and the Windows key could not bring the taskbar back. Auto-hide is a saved Windows setting, so a crash-restore flag file (`userData/shell-state.json`) records the original state. The taskbar still slides up at the bottom edge, which keeps Start reachable.
+
+## D15. koffi for Win32 calls (2026-11-12)
+koffi (prebuilt N-API binaries, no compiler) calls user32, shell32 and dwmapi from the main process. Its install script is not needed: the binary ships in `@koromix/koffi-win32-x64`.

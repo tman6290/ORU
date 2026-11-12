@@ -16,7 +16,8 @@
     "typecheck": "tsc --noEmit",
     "smoke:chat": "tsx scripts/smoke-chat.ts",
     "smoke:realtime": "tsx scripts/smoke-realtime.ts",
-    "dist": "electron-vite build && electron-builder"
+    "dist": "electron-vite build && electron-builder",
+    "spike:shell": "electron scripts/spike/shell-spike.cjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.86",
@@ -30,6 +31,7 @@
     "@picovoice/web-voice-processor": "^4.0.10",
     "ai": "^6.0.193",
     "dotenv": "^17.4.2",
+    "koffi": "^3.3.7",
     "vosk-browser": "^0.0.8",
     "zod": "^4.4.3"
   },
@@ -72,7 +74,9 @@
       "package.json"
     ],
     "asarUnpack": [
-      "node_modules/@nut-tree-fork/**/*"
+      "node_modules/@nut-tree-fork/**/*",
+      "node_modules/koffi/**/*",
+      "node_modules/@koromix/**/*"
     ],
     "mac": {
       "target": [
