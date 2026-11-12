@@ -51,3 +51,5 @@ Append an entry to the session log in `docs/PROGRESS.md` (newest first): Done, N
 - Windows coordinates: Node scripts are not DPI-aware, so Win32 returns half-size numbers on Tofa's 200% screen. Electron's `screen` uses scaled units; convert with `screen.dipToScreenRect`.
 - `pnpm install` skips build scripts; that is expected (koffi and others ship prebuilt).
 - `globalShortcut`: Windows reserves Alt+Space, Ctrl+Esc and Win+ chords.
+- The ORU theme lives in `src/renderer/src/components/themes/oru/`. Animated layers subscribe to `useFrame` in `frame-clock.ts`; never start another requestAnimationFrame loop. Read state from `motion.ts`.
+- `pnpm preview:oru` shows the theme in a browser at http://localhost:5174 with fake data; F8 cycles the orb states.

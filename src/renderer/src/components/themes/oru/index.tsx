@@ -96,6 +96,16 @@ function useDebugState() {
   return debug;
 }
 
+/** Measured frame rate, refreshed every second (frame budget checks). */
+function DebugFps() {
+  const [fps, setFps] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => setFps(window.oruFps?.() ?? 0), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+  return <>{fps}</>;
+}
+
 /** Speech-like level for debug: syllable bursts at ~4 Hz. */
 function fakeLevel(t: number) {
   const syll = Math.max(0, Math.sin(t * 25)) * (0.5 + 0.5 * Math.sin(t * 3.1));
@@ -267,7 +277,7 @@ function OruTheme(props: DexThemeProps) {
 
       {debug && (
         <div className="oru-label absolute bottom-24 left-8 !text-[var(--oru-warn)]" style={{ zIndex: 6 }}>
-          Debug: {debug} · F8 next · Esc exit
+          Debug: {debug} · <DebugFps /> fps · F8 next · Esc exit
         </div>
       )}
       <div className="absolute inset-x-0 bottom-8 flex justify-center" style={{ zIndex: 6 }}>

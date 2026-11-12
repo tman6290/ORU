@@ -4,9 +4,9 @@ Claude Code: read this file at the start of each session and update it at the en
 
 ## Current state
 
-- Phase in progress: 3 (design pass). Phases 1 and 2 done.
+- Phase in progress: 3 (built, waiting for Tofa's manual tests and measurements). Phases 1 and 2 done.
 - App runs on Tofa's machine: yes (pnpm dev opens a window titled ORU; onboarding runs)
-- Last session: 2026-11-12, Phase 2
+- Last session: 2026-11-12, Phases 2 and 3
 
 ## Phases
 
@@ -24,6 +24,29 @@ Claude Code: read this file at the start of each session and update it at the en
 ## Session log
 
 Add one entry per session, newest first.
+
+### 2026-11-12, Phase 3
+Done:
+- Design pass approved: mind lattice above the orb (a), glass orb (a), lean panels where every element shows real data (D16). Raw WebGL2 orb (D17), Oxanium + JetBrains Mono via @fontsource (D18).
+- Theme `components/themes/oru/`: `index.tsx` (root, frame budget, F8 debug), `orb-gl.ts` + `orb.tsx` (shader orb, particle shell, faint inner glyphs, muted mark), `ring.tsx` (opon ring, back half behind the orb, splits while thinking), `gears.tsx` (platform + orbit rings, tick per tool call), `lattice.tsx` (constellation, paths light while thinking), `glyph-streams.tsx` (canvas Odù columns, inflow while thinking), `odu.tsx` (any Odù from a byte), `panels.tsx` (top bar, System, Transcript, Actions, controls, typing panel), `frame-clock.ts`, `motion.ts`.
+- Main `system/stats.ts` + IPC `system:stats`: CPU (os.cpus deltas), RAM, GPU via nvidia-smi, network via `netstat -e`. Battery via the Battery API in the renderer.
+- ORU is the default theme; config v2 migrates existing installs to it once.
+- Fixed: shared TextComposer's Esc called `window.close()` (in shell mode that switched to Windows view).
+- Fixed during preview: orb cleanup lost the WebGL context, so React StrictMode's second mount fell back to a CSS circle.
+- `pnpm preview:oru` renders the theme in a browser with fake data (port 5174); used to check 1280x800 and 1920x1080 layouts, all six orb states and the typing panel.
+Not done:
+- Measurements on the Legion (frame rate, idle GPU) and Tofa's manual tests below.
+- "I want to type" by voice opens the typing panel: needs skills (Phase 7). Type button and summon hotkey work now.
+Decisions: D16, D17, D18.
+Manual tests for Tofa:
+1. `pnpm dev`: ORU opens in the new theme, with no layout breaks.
+2. Press F8 repeatedly: the orb cycles idle, listening, thinking, speaking, muted, error; Esc returns to normal. Each looks distinct.
+3. System panel: CPU, GPU, memory and network match Task Manager within a few percent.
+4. Click the keyboard button: the typing panel slides up; type and press Enter: the text appears in the transcript. Esc closes the panel (ORU stays).
+5. Mute button: the orb dims with a muted mark. Windows-view button: switches to Windows. Gear: opens Settings.
+6. Frame rate: press F8 once; the debug label shows fps (target 60). Click into another app and read it again (target 30). Esc to leave debug.
+7. Idle GPU: Task Manager → Details or Processes, GPU column for ORU (Electron) at rest. Target under 15%.
+Next step: Tofa runs the tests and reports the two numbers; then Phase 4 (`prompts/04-voice-out.md`).
 
 ### 2026-11-12, Phase 2
 Done:
