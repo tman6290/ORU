@@ -133,6 +133,7 @@ export function attachShellWindow(win: BrowserWindow): void {
   if (!isShellActive()) return;
   attachedHwnd = w32.hwndOf(win);
   w32.hideFromAltTab(attachedHwnd);
+  w32.disableTransitions(attachedHwnd);
   win.on("will-resize", (e) => e.preventDefault());
   // A click raises the window; drop it straight back above the desktop.
   win.hookWindowMessage(WM_WINDOWPOSCHANGED, () => setImmediate(settle));
@@ -155,23 +156,30 @@ export function enterOruView(): void {
   if (!isShellActive()) return;
   const win = hooks?.getMainWindow();
   if (!win || win.isDestroyed()) return;
+  const t0 = performance.now();
   view = "oru";
-  if (getConfig().shell.hideTaskbar) hideTaskbar();
-  else restoreSystemState();
+  // Tell the renderer first so its animation loop is already running when the
+  // window appears (instant switch: no stale or blank first frame).
+  hooks?.onViewChanged(view);
   fitToPrimaryDisplay();
   win.show();
   win.focus();
   settle();
-  hooks?.onViewChanged(view);
+  // Taskbar last: the window swap never waits on Explorer.
+  if (getConfig().shell.hideTaskbar) hideTaskbar();
+  else restoreSystemState();
+  console.log(`[oru] shell: ORU view in ${(performance.now() - t0).toFixed(1)} ms`);
 }
 
 export function enterWindowsView(): void {
   if (!isShellActive()) return;
+  const t0 = performance.now();
   view = "windows";
-  restoreSystemState();
   // Hide, never destroy: the voice session lives in this window.
   hooks?.getMainWindow()?.hide();
+  restoreSystemState();
   hooks?.onViewChanged(view);
+  console.log(`[oru] shell: Windows view in ${(performance.now() - t0).toFixed(1)} ms`);
 }
 
 export function toggleView(): void {

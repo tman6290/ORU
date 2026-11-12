@@ -69,16 +69,6 @@ function useWindowFocus() {
   return focused;
 }
 
-function useDocumentVisible() {
-  const [visible, setVisible] = useState(() => document.visibilityState === "visible");
-  useEffect(() => {
-    const on = () => setVisible(document.visibilityState === "visible");
-    document.addEventListener("visibilitychange", on);
-    return () => document.removeEventListener("visibilitychange", on);
-  }, []);
-  return visible;
-}
-
 // Debug: F8 cycles the orb through every state (with a synthetic voice level),
 // so each look can be checked before a model exists (Phase 6). F8 past the last
 // state, or Esc, returns to the real status. F9 raises a test critical alert,
@@ -162,14 +152,16 @@ function OruTheme(props: DexThemeProps) {
   const vp = useViewport();
   const shell = useShellView();
   const focused = useWindowFocus();
-  const visible = useDocumentVisible();
   const battery = useBattery();
   const [typing, setTyping] = useState(false);
   const debug = useDebugState();
 
   // ── Frame budget (DESIGN.md): 60 focused, 30 behind other apps, paused in
   //    Windows view or when hidden, reduced effects on battery.
-  const paused = (shell.active && shell.view === "windows") || !visible;
+  // Paused by the shell view only: Chromium already stops frames for a hidden
+  // page, and waiting for its "visible" event would delay the first frame when
+  // switching back to ORU (the switch must be instant).
+  const paused = shell.active && shell.view === "windows";
   const lowPower = Boolean(battery && !battery.charging);
   useEffect(() => {
     setBudget({ fps: paused ? 0 : focused ? 60 : 30, lowPower });

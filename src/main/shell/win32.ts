@@ -21,6 +21,7 @@ const WS_EX_TOOLWINDOW = 0x80;
 const WS_EX_APPWINDOW = 0x40000;
 const ABM_GETSTATE = 4;
 const ABM_SETSTATE = 10;
+const DWMWA_TRANSITIONS_FORCEDISABLED = 3;
 const DWMWA_EXTENDED_FRAME_BOUNDS = 9;
 const DWMWA_WINDOW_CORNER_PREFERENCE = 33;
 const DWMWA_BORDER_COLOR = 34;
@@ -143,6 +144,12 @@ export function coverRect(hwnd: number, px: Rectangle): void {
   if (l || t || r || b) {
     SetWindowPos(hwnd, 0, px.x - l, px.y - t, px.width + l + r, px.height + t + b, flags);
   }
+}
+
+/** Turn off Windows' show/hide animation for this window, so switching
+ *  between ORU and Windows view is instant. */
+export function disableTransitions(hwnd: number): void {
+  w32().DwmSetWindowAttribute(hwnd, DWMWA_TRANSITIONS_FORCEDISABLED, [1], 4);
 }
 
 /** Keep the window out of Alt+Tab (tool window) while it stays focusable. */

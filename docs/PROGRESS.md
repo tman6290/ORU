@@ -58,6 +58,7 @@ Follow-up after Tofa's review (same day):
 - Taskbar stuck on auto-hide after Ctrl+C on `pnpm dev` (2026-11-12): restored Tofa's setting by hand, then D21 (signal handlers + watchdog). Hard-kill test on the real taskbar: restored in about 1 s.
 - Onboarding reappeared (2026-11-12): `%APPDATA%\ORU` itself was intact (created 2026-11-11 17:18), but `config.json` was missing when ORU started at 16:32:38 and was created fresh at 16:32:46. Tofa did not use Settings → Reset, the only code path that deletes it; cause unknown. Onboarding marked complete in the new config. Protection added: every save also writes `config.last-good.json`, a missing `config.json` is restored from it at launch, and resets/restores are logged to `config-events.log` in the same folder.
 - Orb much bigger (D20): sphere 362 px at 1280x800 (was 244), 536 px at 1920x1080. Lattice and platform flattened, ring 1.4x. Layout check clean at both sizes, with typing panel and alert banner.
+- Instant view switch: Windows show/hide animation disabled for the ORU window (DWMWA_TRANSITIONS_FORCEDISABLED); the renderer is told before the window shows; the taskbar change runs after the window swap. The terminal logs each switch time ("[oru] shell: ORU view in N ms"). The taskbar's own slide when auto-hide turns off is a Windows animation ORU does not control.
 Next step: Tofa runs the tests and reports the two numbers; then Phase 4 (`prompts/04-voice-out.md`).
 
 ### 2026-11-12, Phase 2
